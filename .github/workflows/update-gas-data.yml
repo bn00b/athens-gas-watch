@@ -1,0 +1,82 @@
+name: Update gas price anchor
+
+on:
+  schedule:
+    - cron: "0 11 * * *"   # ~06:00-07:00 US Eastern, daily
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch AAA Georgia averages
+        id: fetch
+        run: |
+          set -euo pipefail
+
+          html=$(curl -sSL --fail -A "Mozilla/5.0 (compatible; athens-gas-watch-bot/1.0)" \
+            "https://gasprices.aaa.com/?state=GA")
+
+          # Primary source: the "Current Avg." row (Regular, Mid-Grade, Premium, Diesel, in that order)
+          mapfile -t vals < <(printf '%s' "$html" | grep -A5 'Current Avg\.' | head -6 | grep -oP '\$\K[0-9]+\.[0-9]+')
+          regular="${vals[0]:-}"
+          mid="${vals[1]:-}"
+          premium="${vals[2]:-}"
+          diesel="${vals[3]:-}"
+
+          # Cross-check against the independently labeled headline figure
+          headline=$(printf '%s' "$html" | grep -oP "Today's AAA Georgia Avg\.\s*\\\$\K[0-9]+\.[0-9]+" | head -1)
+
+          echo "Parsed: regular=$regular mid=$mid premium=$premium diesel=$diesel headline=$headline"
+
+          if [ -z "$regular" ] || [ -z "$mid" ] || [ -z "$premium" ] || [ -z "$diesel" ] || [ -z "$headline" ]; then
+            echo "::error::Could not parse one or more prices from AAA's page — site structure may have changed."
+            exit 1
+          fi
+          if [ "$regular" != "$headline" ]; then
+            echo "::error::Sanity check failed: table regular ($regular) != headline figure ($headline)."
+            exit 1
+          fi
+          for v in "$regular" "$mid" "$premium" "$diesel"; do
+            awk -v x="$v" 'BEGIN{ if (x+0 < 1.5 || x+0 > 8.0) exit 1 }' \
+              || { echo "::error::Implausible price value: $v"; exit 1; }
+          done
+
+          echo "regular=$regular" >> "$GITHUB_OUTPUT"
+          echo "mid=$mid" >> "$GITHUB_OUTPUT"
+          echo "premium=$premium" >> "$GITHUB_OUTPUT"
+          echo "diesel=$diesel" >> "$GITHUB_OUTPUT"
+
+      - name: Write data.json
+        run: |
+          cat > data.json <<EOF
+          {
+            "updated": "$(date -u +%Y-%m-%d)",
+            "generatedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "aaa": {
+              "regular": ${{ steps.fetch.outputs.regular }},
+              "mid": ${{ steps.fetch.outputs.mid }},
+              "premium": ${{ steps.fetch.outputs.premium }},
+              "diesel": ${{ steps.fetch.outputs.diesel }}
+            }
+          }
+          EOF
+          cat data.json
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          if git diff --cached --quiet; then
+            echo "No change in AAA average — skipping commit."
+            exit 0
+          fi
+          git commit -m "Refresh AAA Georgia gas price anchor"
+          git push

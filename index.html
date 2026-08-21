@@ -104,6 +104,8 @@
   }
   .illustrative-pill:hover{ border-color:var(--accent); color:var(--accent); }
   .illustrative-pill .swatch-dot{ width:7px; height:7px; border-radius:50%; background:var(--accent); flex:none; }
+  .live-stamp{ font-size:12.5px; color:var(--ink-muted); }
+  .live-stamp #refreshedStamp{ color:var(--ink-2); font-weight:500; }
 
   details.methodology{
     background:var(--surface); border:1px solid var(--hairline); border-radius:12px;
@@ -267,18 +269,21 @@
   <div class="eyebrow"><span class="pump">⛽</span> Fuel prices &middot; within 15 mi of Athens, GA</div>
   <h1>Athens Gas Watch</h1>
   <div class="sub-row">
-    <span>Friday, August 21, 2026</span>
+    <span id="dateLabel">Friday, August 21, 2026</span>
     <span class="dot-sep">&middot;</span>
     <span>25 stations tracked</span>
     <span class="dot-sep">&middot;</span>
     <a class="illustrative-pill" href="#methodology"><span class="swatch-dot"></span>Illustrative data &mdash; see methodology</a>
   </div>
+  <div class="sub-row" id="autoUpdateRow" style="display:none;">
+    <span class="live-stamp">&#8635; Auto-updated daily &middot; anchor last refreshed <span id="refreshedStamp"></span></span>
+  </div>
 
   <details class="methodology" id="methodology">
     <summary>How this data works <span class="chev">&#9660;</span></summary>
     <p>Live, pump-by-pump pricing lives behind GasBuddy's and AAA's own apps and isn't available as an open feed, so the 25 stations below are a <b style="color:var(--ink)">modeled illustration, not a live scrape</b>. Brands and roads reflect real Athens-area corridors &mdash; Atlanta Hwy, Lexington Rd, Epps Bridge Pkwy, Baxter St, Prince Ave &mdash; plus the surrounding towns of Bogart, Watkinsville, Winterville, Bishop, Nicholson, Hull, and Statham.</p>
-    <p>Per-station regular prices are built around <b style="color:var(--ink)">AAA's verified Georgia average for today, $3.826/gal</b>, spread using typical local competitive patterns: warehouse-club and grocery fuel centers cheapest, single-brand stations in smaller towns highest. Mid-grade, premium, and diesel apply today's real AAA Georgia grade ratios to each station's regular price. For an exact price at a specific pump right now, check the GasBuddy or AAA app.</p>
-    <p class="cite">Source: AAA Gas Prices, Georgia state average, retrieved Aug 21, 2026 (gasprices.aaa.com).</p>
+    <p>Per-station regular prices are built around <b style="color:var(--ink)">AAA's verified Georgia average for today</b> (shown in the summary above), spread using typical local competitive patterns: warehouse-club and grocery fuel centers cheapest, single-brand stations in smaller towns highest. Mid-grade, premium, and diesel apply that day's real AAA Georgia grade ratios to each station's regular price. A GitHub Actions job re-fetches AAA's state average daily and re-anchors these figures to it &mdash; the station list and relative spread stay modeled, but the price level tracks the real market. For an exact price at a specific pump right now, check the GasBuddy or AAA app.</p>
+    <p class="cite">Source: AAA Gas Prices, Georgia state average (gasprices.aaa.com), refreshed automatically once per day.</p>
   </details>
 
   <div class="filters">
@@ -395,16 +400,27 @@
     {brand:"Marathon",               road:"Hwy 82, Statham",       dir:"E",  dist:14.5, price:4.05},
   ];
 
-  const GRADE_RATIO = { regular:1, mid:1.1272, premium:1.2379, diesel:1.4292 };
   const GRADE_LABEL = { regular:"Regular", mid:"Mid-Grade", premium:"Premium", diesel:"Diesel" };
-  const AAA_GA_AVG  = { regular:3.8264, mid:4.3129, premium:4.7367, diesel:5.4685 };
   const DIR_DEG = { N:0, NE:45, E:90, SE:135, S:180, SW:225, W:270, NW:315 };
   const TIER_LABEL = { good:"Below avg", warn:"Near avg", serious:"Above avg" };
+
+  // Baseline anchor used to originally calibrate the modeled station prices
+  // (AAA's verified Georgia average, Aug 21, 2026). A daily GitHub Actions job
+  // fetches the current AAA average into data.json; when present, it rescales
+  // this whole modeled dataset to today's real price level instead of staying
+  // frozen on the baseline date.
+  const BASELINE_AAA  = { regular:3.8264, mid:4.3129, premium:4.7367, diesel:5.4685 };
+  const BASELINE_DATE = "2026-08-21";
+  const ratiosFrom = a => ({ regular:1, mid:a.mid/a.regular, premium:a.premium/a.regular, diesel:a.diesel/a.regular });
+
+  let GRADE_RATIO = ratiosFrom(BASELINE_AAA);
+  let AAA_GA_AVG  = BASELINE_AAA;
+  let SCALE = 1;
 
   const state = { grade:"regular", radius:15, query:"", sortKey:"dp", sortDir:1 };
 
   const fmt = n => "$" + n.toFixed(2);
-  const priceFor = (s, grade) => s.price * GRADE_RATIO[grade];
+  const priceFor = (s, grade) => s.price * SCALE * GRADE_RATIO[grade];
   const tierFor = (p, avg, grade) => {
     const t = 0.05 * GRADE_RATIO[grade];
     if (p <= avg - t) return "good";
@@ -625,6 +641,32 @@
     render();
   });
 
-  render();
+  function formatDate(iso){
+    return new Date(iso + "T12:00:00").toLocaleDateString("en-US", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+  }
+  function formatStamp(iso){
+    return new Date(iso).toLocaleString("en-US", { dateStyle:"medium", timeStyle:"short", timeZone:"UTC" }) + " UTC";
+  }
+
+  function init(){
+    fetch("./data.json", { cache:"no-store" })
+      .then(r => r.ok ? r.json() : null)
+      .catch(() => null)
+      .then(live => {
+        if (live && live.aaa && typeof live.aaa.regular === "number" && live.aaa.regular > 0) {
+          AAA_GA_AVG  = live.aaa;
+          GRADE_RATIO = ratiosFrom(live.aaa);
+          SCALE = live.aaa.regular / BASELINE_AAA.regular;
+          document.getElementById("dateLabel").textContent = formatDate(live.updated || BASELINE_DATE);
+          if (live.generatedAt) {
+            document.getElementById("refreshedStamp").textContent = formatStamp(live.generatedAt);
+            document.getElementById("autoUpdateRow").style.display = "";
+          }
+        }
+        render();
+      });
+  }
+
+  init();
 })();
 </script>
