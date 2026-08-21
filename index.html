@@ -1,0 +1,630 @@
+<title>Athens Gas Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f9f9f7;
+    --surface:#fcfcfb;
+    --surface-2:#f2f1ec;
+    --ink:#0b0b0b;
+    --ink-2:#52514e;
+    --ink-muted:#898781;
+    --hairline:#e1e0d9;
+    --border:rgba(11,11,11,0.10);
+    --accent:#2a78d6;
+    --accent-ink:#ffffff;
+    --good:#0ca30c;
+    --warn:#c98500;
+    --warn-dot:#fab219;
+    --serious:#c1512e;
+    --serious-dot:#ec835a;
+    --good-bg:rgba(12,163,12,0.12);
+    --warn-bg:rgba(250,178,25,0.18);
+    --serious-bg:rgba(236,131,90,0.16);
+    --shadow: 0 1px 2px rgba(11,11,11,0.04), 0 8px 24px -12px rgba(11,11,11,0.12);
+
+    --font-display: 'Oswald', 'Arial Narrow', sans-serif;
+    --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'Consolas', monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --page:#0d0d0d;
+      --surface:#1a1a19;
+      --surface-2:#212120;
+      --ink:#ffffff;
+      --ink-2:#c3c2b7;
+      --ink-muted:#918f88;
+      --hairline:#2c2c2a;
+      --border:rgba(255,255,255,0.10);
+      --accent:#3987e5;
+      --good:#3fcf3f;
+      --warn:#f4b73a;
+      --warn-dot:#f4b73a;
+      --serious:#f0916b;
+      --serious-dot:#f0916b;
+      --good-bg:rgba(63,207,63,0.16);
+      --warn-bg:rgba(244,183,58,0.16);
+      --serious-bg:rgba(240,145,107,0.16);
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --page:#0d0d0d;
+    --surface:#1a1a19;
+    --surface-2:#212120;
+    --ink:#ffffff;
+    --ink-2:#c3c2b7;
+    --ink-muted:#918f88;
+    --hairline:#2c2c2a;
+    --border:rgba(255,255,255,0.10);
+    --accent:#3987e5;
+    --good:#3fcf3f;
+    --warn:#f4b73a;
+    --warn-dot:#f4b73a;
+    --serious:#f0916b;
+    --serious-dot:#f0916b;
+    --good-bg:rgba(63,207,63,0.16);
+    --warn-bg:rgba(244,183,58,0.16);
+    --serious-bg:rgba(240,145,107,0.16);
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+
+  *{ box-sizing:border-box; }
+  body{ background:var(--page); color:var(--ink); font-family:var(--font-body); }
+
+  .wrap{ max-width:1120px; margin:0 auto; padding:28px 20px 60px; }
+
+  /* ---------- header ---------- */
+  .eyebrow{
+    font-family:var(--font-display); font-weight:600; font-size:12.5px;
+    letter-spacing:0.14em; text-transform:uppercase; color:var(--accent);
+    display:flex; align-items:center; gap:8px; margin-bottom:10px;
+  }
+  .eyebrow .pump{ font-size:14px; }
+  h1{
+    font-family:var(--font-display); font-weight:600; font-size:clamp(30px,4.4vw,42px);
+    letter-spacing:0.01em; margin:0 0 8px; text-wrap:balance;
+  }
+  .sub-row{
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px;
+    color:var(--ink-2); font-size:14.5px; margin-bottom:18px;
+  }
+  .sub-row .dot-sep{ color:var(--ink-muted); }
+  .illustrative-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:500; color:var(--ink-2);
+    background:var(--surface-2); border:1px solid var(--hairline);
+    border-radius:100px; padding:4px 12px 4px 10px; text-decoration:none;
+  }
+  .illustrative-pill:hover{ border-color:var(--accent); color:var(--accent); }
+  .illustrative-pill .swatch-dot{ width:7px; height:7px; border-radius:50%; background:var(--accent); flex:none; }
+
+  details.methodology{
+    background:var(--surface); border:1px solid var(--hairline); border-radius:12px;
+    padding:2px 18px; margin:0 0 26px; box-shadow:var(--shadow);
+  }
+  details.methodology summary{
+    cursor:pointer; list-style:none; font-family:var(--font-display); font-weight:600;
+    font-size:14px; letter-spacing:0.03em; padding:14px 0; color:var(--ink);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  details.methodology summary::-webkit-details-marker{ display:none; }
+  details.methodology summary .chev{ color:var(--ink-muted); transition:transform .15s ease; font-size:12px; }
+  details.methodology[open] summary .chev{ transform:rotate(180deg); }
+  .methodology p{ margin:0 0 14px; font-size:14px; line-height:1.6; color:var(--ink-2); max-width:74ch; }
+  .methodology p.cite{ font-size:12.5px; color:var(--ink-muted); }
+
+  /* ---------- filters ---------- */
+  .filters{
+    display:flex; flex-wrap:wrap; align-items:center; gap:20px;
+    background:var(--surface); border:1px solid var(--hairline); border-radius:12px;
+    padding:14px 18px; margin-bottom:22px; box-shadow:var(--shadow);
+  }
+  .filter-group{ display:flex; flex-direction:column; gap:6px; }
+  .filter-label{
+    font-size:11px; font-weight:600; letter-spacing:0.09em; text-transform:uppercase;
+    color:var(--ink-muted);
+  }
+  .tabs, .segmented{ display:flex; gap:4px; background:var(--surface-2); border-radius:9px; padding:3px; }
+  .tabs button, .segmented button{
+    font-family:var(--font-body); font-size:13.5px; font-weight:500; color:var(--ink-2);
+    background:transparent; border:none; border-radius:7px; padding:7px 13px; cursor:pointer;
+  }
+  .tabs button:hover, .segmented button:hover{ color:var(--ink); }
+  .tabs button.active, .segmented button.active{
+    background:var(--accent); color:var(--accent-ink);
+  }
+  .search-field{ position:relative; flex:1; min-width:180px; }
+  .search-field input{
+    width:100%; font-family:var(--font-body); font-size:13.5px; color:var(--ink);
+    background:var(--surface-2); border:1px solid transparent; border-radius:9px;
+    padding:9px 12px 9px 32px; outline:none;
+  }
+  .search-field input:focus{ border-color:var(--accent); }
+  .search-field svg{ position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--ink-muted); }
+  .filters .spacer{ flex:1; min-width:8px; }
+
+  /* ---------- KPI strip ---------- */
+  .kpi-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr));
+    gap:1px; background:var(--hairline); border:1px solid var(--hairline);
+    border-radius:12px; overflow:hidden; margin-bottom:24px; box-shadow:var(--shadow);
+  }
+  .kpi-tile{ background:var(--surface); padding:16px 18px; }
+  .kpi-label{ font-size:11.5px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-muted); margin-bottom:8px; }
+  .kpi-value{ font-family:var(--font-mono); font-weight:700; font-size:clamp(20px,2.4vw,26px); line-height:1.1; }
+  .kpi-value.good{ color:var(--good); } .kpi-value.serious{ color:var(--serious); }
+  .kpi-sub{ font-size:12.5px; color:var(--ink-2); margin-top:6px; line-height:1.4; }
+  .kpi-sub b{ color:var(--ink); font-weight:600; }
+
+  .tip-row{
+    display:flex; gap:10px; align-items:flex-start; font-size:13px; color:var(--ink-2);
+    background:var(--surface-2); border-radius:10px; padding:11px 14px; margin-bottom:26px;
+  }
+  .tip-row .tip-tag{
+    flex:none; font-family:var(--font-display); font-weight:600; font-size:10.5px;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--accent);
+    border:1px solid var(--accent); border-radius:100px; padding:2px 9px; margin-top:1px;
+  }
+
+  /* ---------- legend ---------- */
+  .legend{ display:flex; flex-wrap:wrap; gap:18px; margin:0 0 14px; padding:0 2px; }
+  .legend-item{ display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink-2); }
+  .legend-item .swatch{ width:9px; height:9px; border-radius:50%; flex:none; }
+  .swatch.good{ background:var(--good); } .swatch.warn{ background:var(--warn-dot); } .swatch.serious{ background:var(--serious-dot); }
+
+  /* ---------- panels ---------- */
+  .charts{ display:grid; grid-template-columns: 1.4fr 1fr; gap:18px; margin-bottom:26px; align-items:start; }
+  @media (max-width: 860px){ .charts{ grid-template-columns:1fr; } }
+  .panel{
+    background:var(--surface); border:1px solid var(--hairline); border-radius:12px;
+    padding:18px 20px 20px; box-shadow:var(--shadow);
+  }
+  .panel-title{ font-family:var(--font-display); font-weight:600; font-size:15px; letter-spacing:0.01em; margin-bottom:2px; }
+  .panel-caption{ font-size:12.5px; color:var(--ink-muted); margin-bottom:16px; }
+
+  /* ---------- rank chart ---------- */
+  .rank-grid{ display:grid; grid-template-columns: 168px 1fr 66px; column-gap:12px; align-items:center; }
+  .rank-head{ font-size:11px; color:var(--ink-muted); padding-bottom:8px; margin-bottom:6px; border-bottom:1px solid var(--hairline); }
+  .rank-axis{ position:relative; height:14px; }
+  .rank-axis span{ position:absolute; top:0; transform:translateX(-50%); white-space:nowrap; font-family:var(--font-mono); font-size:10.5px; }
+  .rank-axis span:first-child{ transform:translateX(0); }
+  .rank-axis span:last-child{ transform:translateX(-100%); }
+  .rank-axis span.avg-tick{ color:var(--accent); font-weight:600; }
+  .rank-row{ padding:5px 0; }
+  .rank-row + .rank-row{ border-top:1px solid var(--hairline); }
+  .rank-name{ font-size:13px; font-weight:500; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rank-sub{ font-size:11px; color:var(--ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rank-track{ position:relative; height:20px; }
+  .rank-track .track-line{ position:absolute; left:0; right:0; top:50%; height:1px; background:var(--hairline); }
+  .rank-dot{
+    position:absolute; top:50%; width:10px; height:10px; border-radius:50%;
+    transform:translate(-50%,-50%); box-shadow:0 0 0 2px var(--surface); cursor:pointer;
+  }
+  .rank-dot:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .rank-dot.good{ background:var(--good); } .rank-dot.warn{ background:var(--warn-dot); } .rank-dot.serious{ background:var(--serious-dot); }
+  .rank-value{ font-family:var(--font-mono); font-size:12.5px; font-weight:600; text-align:right; font-variant-numeric:tabular-nums; }
+
+  /* ---------- compass chart ---------- */
+  .compass-wrap{ display:flex; justify-content:center; }
+  .compass-wrap svg{ width:100%; max-width:320px; height:auto; }
+  .compass-note{ text-align:center; font-size:11.5px; color:var(--ink-muted); margin-top:8px; }
+
+  /* ---------- tooltip ---------- */
+  .tooltip{
+    position:fixed; z-index:50; pointer-events:none; background:var(--ink); color:var(--page);
+    font-size:12px; line-height:1.45; padding:8px 11px; border-radius:8px; max-width:220px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.25); transform:translate(-50%,-100%); opacity:0; transition:opacity .1s ease;
+  }
+  .tooltip.show{ opacity:1; }
+  .tooltip b{ font-family:var(--font-mono); }
+
+  /* ---------- table ---------- */
+  .table-panel{ background:var(--surface); border:1px solid var(--hairline); border-radius:12px; padding:18px 20px 8px; box-shadow:var(--shadow); margin-bottom:22px; }
+  .table-scroll{ overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; min-width:600px; }
+  thead th{ text-align:left; padding:0 10px 10px; border-bottom:1px solid var(--hairline); }
+  thead th.num{ text-align:right; }
+  thead button{
+    background:none; border:none; cursor:pointer; font-family:var(--font-body);
+    font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-muted);
+    display:inline-flex; align-items:center; gap:4px; padding:0;
+  }
+  thead th.num button{ margin-left:auto; }
+  thead button:hover{ color:var(--ink); }
+  thead button .arrow{ font-size:9px; opacity:0; }
+  thead button.active .arrow{ opacity:1; color:var(--accent); }
+  tbody td{ padding:11px 10px; border-bottom:1px solid var(--hairline); font-size:13.5px; vertical-align:middle; }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:var(--surface-2); }
+  td.num{ text-align:right; font-family:var(--font-mono); font-weight:600; font-variant-numeric:tabular-nums; }
+  td.station{ font-weight:500; }
+  td.station .loc{ font-size:11.5px; color:var(--ink-muted); font-weight:400; margin-top:2px; }
+  .badge{
+    display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:500;
+    padding:4px 10px; border-radius:100px; white-space:nowrap;
+  }
+  .badge .bd{ width:6px; height:6px; border-radius:50%; flex:none; }
+  .badge.good{ background:var(--good-bg); color:var(--ink); } .badge.good .bd{ background:var(--good); }
+  .badge.warn{ background:var(--warn-bg); color:var(--ink); } .badge.warn .bd{ background:var(--warn-dot); }
+  .badge.serious{ background:var(--serious-bg); color:var(--ink); } .badge.serious .bd{ background:var(--serious-dot); }
+
+  .empty-state{ text-align:center; padding:50px 20px; color:var(--ink-2); font-size:14px; }
+
+  /* ---------- footer ---------- */
+  footer{ margin-top:8px; padding-top:16px; border-top:1px solid var(--hairline); }
+  footer p{ font-size:12px; color:var(--ink-muted); line-height:1.6; margin:0 0 6px; max-width:80ch; }
+</style>
+
+<div class="wrap">
+
+  <div class="eyebrow"><span class="pump">⛽</span> Fuel prices &middot; within 15 mi of Athens, GA</div>
+  <h1>Athens Gas Watch</h1>
+  <div class="sub-row">
+    <span>Friday, August 21, 2026</span>
+    <span class="dot-sep">&middot;</span>
+    <span>25 stations tracked</span>
+    <span class="dot-sep">&middot;</span>
+    <a class="illustrative-pill" href="#methodology"><span class="swatch-dot"></span>Illustrative data &mdash; see methodology</a>
+  </div>
+
+  <details class="methodology" id="methodology">
+    <summary>How this data works <span class="chev">&#9660;</span></summary>
+    <p>Live, pump-by-pump pricing lives behind GasBuddy's and AAA's own apps and isn't available as an open feed, so the 25 stations below are a <b style="color:var(--ink)">modeled illustration, not a live scrape</b>. Brands and roads reflect real Athens-area corridors &mdash; Atlanta Hwy, Lexington Rd, Epps Bridge Pkwy, Baxter St, Prince Ave &mdash; plus the surrounding towns of Bogart, Watkinsville, Winterville, Bishop, Nicholson, Hull, and Statham.</p>
+    <p>Per-station regular prices are built around <b style="color:var(--ink)">AAA's verified Georgia average for today, $3.826/gal</b>, spread using typical local competitive patterns: warehouse-club and grocery fuel centers cheapest, single-brand stations in smaller towns highest. Mid-grade, premium, and diesel apply today's real AAA Georgia grade ratios to each station's regular price. For an exact price at a specific pump right now, check the GasBuddy or AAA app.</p>
+    <p class="cite">Source: AAA Gas Prices, Georgia state average, retrieved Aug 21, 2026 (gasprices.aaa.com).</p>
+  </details>
+
+  <div class="filters">
+    <div class="filter-group">
+      <span class="filter-label">Grade</span>
+      <div class="tabs" id="gradeTabs">
+        <button data-grade="regular" class="active">Regular</button>
+        <button data-grade="mid">Mid-Grade</button>
+        <button data-grade="premium">Premium</button>
+        <button data-grade="diesel">Diesel</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Radius</span>
+      <div class="segmented" id="radiusSeg">
+        <button data-radius="5">5 mi</button>
+        <button data-radius="10">10 mi</button>
+        <button data-radius="15" class="active">15 mi</button>
+      </div>
+    </div>
+    <div class="filter-group" style="flex:1; min-width:200px;">
+      <span class="filter-label">Search</span>
+      <div class="search-field">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="text" placeholder="Brand or road, e.g. Kroger, Atlanta Hwy" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="tip-row">
+    <span class="tip-tag">General pattern</span>
+    <span>Regional prices typically dip early in the week and climb into the weekend as demand rises &mdash; not specific to today's figures above.</span>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="swatch good"></span>Below area average</div>
+    <div class="legend-item"><span class="swatch warn"></span>Near area average</div>
+    <div class="legend-item"><span class="swatch serious"></span>Above area average</div>
+  </div>
+
+  <div class="charts">
+    <div class="panel">
+      <div class="panel-title">Price ranking</div>
+      <div class="panel-caption">Every tracked station, cheapest to priciest, for the selected grade.</div>
+      <div class="rank-grid">
+        <div class="rank-head"></div>
+        <div class="rank-head"><div class="rank-axis" id="rankAxis"></div></div>
+        <div class="rank-head" style="text-align:right;">Price</div>
+      </div>
+      <div id="rankRows"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Where they are</div>
+      <div class="panel-caption">Direction &amp; distance from downtown Athens.</div>
+      <div class="compass-wrap"><svg id="compassSvg" viewBox="0 0 320 320"></svg></div>
+      <div class="compass-note">Schematic layout &mdash; not to exact map scale.</div>
+    </div>
+  </div>
+
+  <div class="table-panel">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><button data-key="name" class="active">Station <span class="arrow">&#9660;</span></button></th>
+            <th>Location</th>
+            <th class="num"><button data-key="dist">Distance <span class="arrow">&#9660;</span></button></th>
+            <th class="num"><button data-key="dp">Price <span class="arrow">&#9660;</span></button></th>
+            <th>Vs. area avg</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    <p>Built as a demonstration dashboard. Prices are a modeled illustration anchored to AAA's real Georgia state average for Aug 21, 2026 &mdash; not a live feed of individual station prices. For current pump-level prices, use GasBuddy, the AAA app, or a station's posted sign.</p>
+  </footer>
+
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+(function(){
+  const STATIONS = [
+    {brand:"Costco Fuel",            road:"Lexington Rd",          dir:"SE", dist:3.1,  price:3.55},
+    {brand:"Sam's Club Fuel Center", road:"Lexington Rd",          dir:"SE", dist:3.4,  price:3.57},
+    {brand:"Kroger Fuel Center",     road:"Atlanta Hwy",           dir:"W",  dist:4.0,  price:3.61},
+    {brand:"Murphy USA",             road:"Lexington Rd (Walmart)",dir:"SE", dist:5.8,  price:3.63},
+    {brand:"Kroger Fuel Center",     road:"Alps Rd",               dir:"N",  dist:2.5,  price:3.65},
+    {brand:"Murphy USA",             road:"Atlanta Hwy (Walmart)", dir:"W",  dist:6.5,  price:3.66},
+    {brand:"Kroger Fuel Center",     road:"Epps Bridge Pkwy",      dir:"NW", dist:6.2,  price:3.68},
+    {brand:"Murphy Express",         road:"Commerce Rd",           dir:"N",  dist:5.0,  price:3.70},
+    {brand:"QuikTrip",               road:"Atlanta Hwy",           dir:"W",  dist:4.3,  price:3.72},
+    {brand:"QuikTrip",               road:"Loop 10 / US-441",      dir:"S",  dist:3.9,  price:3.73},
+    {brand:"RaceTrac",               road:"Atlanta Hwy",           dir:"W",  dist:4.6,  price:3.74},
+    {brand:"QuikTrip",               road:"Epps Bridge Pkwy",      dir:"NW", dist:6.8,  price:3.75},
+    {brand:"RaceTrac",               road:"Lexington Rd",          dir:"SE", dist:4.9,  price:3.76},
+    {brand:"Circle K",               road:"Baxter St",             dir:"W",  dist:1.5,  price:3.79},
+    {brand:"Circle K",               road:"Prince Ave",            dir:"NW", dist:1.8,  price:3.81},
+    {brand:"Shell",                  road:"Broad St (Downtown)",   dir:"W",  dist:1.0,  price:3.85},
+    {brand:"BP",                     road:"Milledge Ave",          dir:"SW", dist:2.2,  price:3.86},
+    {brand:"Chevron",                road:"Barnett Shoals Rd",     dir:"SE", dist:4.5,  price:3.88},
+    {brand:"BP",                     road:"Hwy 316, Bogart",       dir:"W",  dist:8.0,  price:3.84},
+    {brand:"Chevron",                road:"Hwy 78, Winterville",   dir:"E",  dist:7.5,  price:3.90},
+    {brand:"Exxon",                  road:"Hwy 441, Watkinsville", dir:"S",  dist:9.5,  price:3.92},
+    {brand:"Phillips 66",            road:"Hwy 29, Hull",          dir:"NE", dist:9.0,  price:3.95},
+    {brand:"Shell",                  road:"Hwy 15, Bishop",        dir:"S",  dist:10.5, price:3.97},
+    {brand:"Citgo",                  road:"Hwy 441, Nicholson",    dir:"N",  dist:12.0, price:4.01},
+    {brand:"Marathon",               road:"Hwy 82, Statham",       dir:"E",  dist:14.5, price:4.05},
+  ];
+
+  const GRADE_RATIO = { regular:1, mid:1.1272, premium:1.2379, diesel:1.4292 };
+  const GRADE_LABEL = { regular:"Regular", mid:"Mid-Grade", premium:"Premium", diesel:"Diesel" };
+  const AAA_GA_AVG  = { regular:3.8264, mid:4.3129, premium:4.7367, diesel:5.4685 };
+  const DIR_DEG = { N:0, NE:45, E:90, SE:135, S:180, SW:225, W:270, NW:315 };
+  const TIER_LABEL = { good:"Below avg", warn:"Near avg", serious:"Above avg" };
+
+  const state = { grade:"regular", radius:15, query:"", sortKey:"dp", sortDir:1 };
+
+  const fmt = n => "$" + n.toFixed(2);
+  const priceFor = (s, grade) => s.price * GRADE_RATIO[grade];
+  const tierFor = (p, avg, grade) => {
+    const t = 0.05 * GRADE_RATIO[grade];
+    if (p <= avg - t) return "good";
+    if (p >= avg + t) return "serious";
+    return "warn";
+  };
+
+  function getFiltered(){
+    const q = state.query.trim().toLowerCase();
+    return STATIONS
+      .filter(s => s.dist <= state.radius)
+      .filter(s => !q || (s.brand + " " + s.road).toLowerCase().includes(q))
+      .map(s => Object.assign({}, s, { dp: priceFor(s, state.grade) }));
+  }
+
+  const tooltip = document.getElementById("tooltip");
+  function showTooltip(el, html){
+    const r = el.getBoundingClientRect();
+    tooltip.innerHTML = html;
+    tooltip.style.left = (r.left + r.width/2) + "px";
+    tooltip.style.top = (r.top - 8) + "px";
+    tooltip.classList.add("show");
+  }
+  function hideTooltip(){ tooltip.classList.remove("show"); }
+
+  function render(){
+    const list = getFiltered();
+    const kpiGrid = document.getElementById("kpiGrid");
+    const rankRows = document.getElementById("rankRows");
+    const rankAxis = document.getElementById("rankAxis");
+    const compassSvg = document.getElementById("compassSvg");
+    const tableBody = document.getElementById("tableBody");
+
+    if (list.length === 0){
+      kpiGrid.innerHTML = "";
+      rankRows.innerHTML = ""; rankAxis.innerHTML = "";
+      compassSvg.innerHTML = "";
+      tableBody.innerHTML = '<tr><td colspan="5"><div class="empty-state">No stations match &mdash; try widening the radius or clearing your search.</div></td></tr>';
+      return;
+    }
+
+    const prices = list.map(s => s.dp);
+    const avg = prices.reduce((a,b) => a+b, 0) / prices.length;
+    const min = Math.min.apply(null, prices);
+    const max = Math.max.apply(null, prices);
+    const cheapest = list.slice().sort((a,b)=>a.dp-b.dp)[0];
+    const priciest = list.slice().sort((a,b)=>b.dp-a.dp)[0];
+
+    // ---- KPI tiles ----
+    kpiGrid.innerHTML = `
+      <div class="kpi-tile">
+        <div class="kpi-label">Area average &middot; ${GRADE_LABEL[state.grade]}</div>
+        <div class="kpi-value">${fmt(avg)}</div>
+        <div class="kpi-sub">AAA GA avg today: <b>${fmt(AAA_GA_AVG[state.grade])}</b></div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">Cheapest nearby</div>
+        <div class="kpi-value good">${fmt(cheapest.dp)}</div>
+        <div class="kpi-sub"><b>${cheapest.brand}</b> &middot; ${cheapest.dist} mi ${cheapest.dir}</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">Most expensive</div>
+        <div class="kpi-value serious">${fmt(priciest.dp)}</div>
+        <div class="kpi-sub"><b>${priciest.brand}</b> &middot; ${priciest.dist} mi ${priciest.dir}</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">Price spread</div>
+        <div class="kpi-value">${fmt(max-min)}</div>
+        <div class="kpi-sub">cheapest to priciest in range</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">Stations shown</div>
+        <div class="kpi-value">${list.length}</div>
+        <div class="kpi-sub">within <b>${state.radius} mi</b> of Athens, GA</div>
+      </div>
+    `;
+
+    // ---- rank chart ----
+    const pad = 0.06 * GRADE_RATIO[state.grade];
+    const domMin = Math.max(0, min - pad);
+    const domMax = max + pad;
+    const pct = v => ((v - domMin) / (domMax - domMin)) * 100;
+
+    rankAxis.innerHTML = `
+      <span style="left:${pct(min)}%">${fmt(min)}</span>
+      <span class="avg-tick" style="left:${pct(avg)}%">avg ${fmt(avg)}</span>
+      <span style="left:${pct(max)}%">${fmt(max)}</span>
+    `;
+
+    const sortedRank = list.slice().sort((a,b) => a.dp - b.dp);
+    rankRows.innerHTML = sortedRank.map(s => {
+      const tier = tierFor(s.dp, avg, state.grade);
+      const label = `${s.brand}, ${s.road}, ${s.dist} mi ${s.dir}, ${fmt(s.dp)}, ${TIER_LABEL[tier]}`;
+      return `
+        <div class="rank-row">
+          <div class="rank-grid">
+            <div>
+              <div class="rank-name">${s.brand}</div>
+              <div class="rank-sub">${s.road} &middot; ${s.dist} mi</div>
+            </div>
+            <div class="rank-track">
+              <div class="track-line"></div>
+              <div class="rank-dot ${tier}" style="left:${pct(s.dp)}%" tabindex="0"
+                   data-tip="${label}" aria-label="${label}"></div>
+            </div>
+            <div class="rank-value">${fmt(s.dp)}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    // ---- compass chart ----
+    const cx = 160, cy = 160, maxR = 138;
+    const rings = [5,10,15];
+    let svg = "";
+    rings.forEach(mi => {
+      const r = maxR * (mi/15);
+      svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--hairline)" stroke-width="1"/>`;
+    });
+    svg += `<text x="${cx+4}" y="${cy-maxR*(5/15)-4}" font-size="9" fill="var(--ink-muted)" font-family="var(--font-mono)">5mi</text>`;
+    svg += `<text x="${cx+4}" y="${cy-maxR*(10/15)-4}" font-size="9" fill="var(--ink-muted)" font-family="var(--font-mono)">10mi</text>`;
+    svg += `<text x="${cx+4}" y="${cy-maxR*(15/15)-4}" font-size="9" fill="var(--ink-muted)" font-family="var(--font-mono)">15mi</text>`;
+
+    const compassPts = [["N",0],["E",90],["S",180],["W",270]];
+    compassPts.forEach(([label,deg]) => {
+      const rad = deg*Math.PI/180;
+      const lx = cx + (maxR+14)*Math.sin(rad), ly = cy - (maxR+14)*Math.cos(rad);
+      svg += `<line x1="${cx}" y1="${cy}" x2="${cx+maxR*Math.sin(rad)}" y2="${cy-maxR*Math.cos(rad)}" stroke="var(--hairline)" stroke-width="1"/>`;
+      svg += `<text x="${lx}" y="${ly+4}" font-size="11" font-weight="600" fill="var(--ink-muted)" font-family="var(--font-display)" text-anchor="middle">${label}</text>`;
+    });
+    svg += `<circle cx="${cx}" cy="${cy}" r="4" fill="var(--accent)"/>`;
+    svg += `<text x="${cx}" y="${cy-9}" font-size="9.5" fill="var(--accent)" font-family="var(--font-mono)" text-anchor="middle">Athens</text>`;
+
+    const byDir = {};
+    list.forEach(s => { (byDir[s.dir] = byDir[s.dir] || []).push(s); });
+    Object.keys(byDir).forEach(dir => {
+      const group = byDir[dir].slice().sort((a,b) => a.dist - b.dist);
+      const n = group.length;
+      const spread = n > 1 ? Math.min(30, (n-1)*6) : 0;
+      const step = n > 1 ? spread/(n-1) : 0;
+      group.forEach((s, i) => {
+        s._angleOffset = n > 1 ? (-spread/2 + i*step) : 0;
+      });
+    });
+
+    list.forEach(s => {
+      const deg = DIR_DEG[s.dir] + (s._angleOffset || 0);
+      const rad = deg*Math.PI/180;
+      const r = maxR * (s.dist/15);
+      const x = cx + r*Math.sin(rad), y = cy - r*Math.cos(rad);
+      const tier = tierFor(s.dp, avg, state.grade);
+      const color = tier==="good" ? "var(--good)" : tier==="serious" ? "var(--serious-dot)" : "var(--warn-dot)";
+      const label = `${s.brand}, ${s.road}, ${s.dist} mi ${s.dir}, ${fmt(s.dp)}`;
+      svg += `<circle class="cdot" cx="${x}" cy="${y}" r="5.5" fill="${color}" stroke="var(--surface)" stroke-width="2" tabindex="0" data-tip="${label}" aria-label="${label}" style="cursor:pointer"/>`;
+    });
+
+    compassSvg.innerHTML = svg;
+
+    // ---- table ----
+    const sortedTable = list.slice().sort((a,b) => {
+      let av, bv;
+      if (state.sortKey === "name"){ av = a.brand.toLowerCase(); bv = b.brand.toLowerCase(); }
+      else if (state.sortKey === "dist"){ av = a.dist; bv = b.dist; }
+      else { av = a.dp; bv = b.dp; }
+      if (av < bv) return -1*state.sortDir;
+      if (av > bv) return 1*state.sortDir;
+      return 0;
+    });
+
+    tableBody.innerHTML = sortedTable.map(s => {
+      const tier = tierFor(s.dp, avg, state.grade);
+      return `
+        <tr>
+          <td class="station">${s.brand}</td>
+          <td><span class="loc">${s.road}</span></td>
+          <td class="num">${s.dist} mi ${s.dir}</td>
+          <td class="num">${fmt(s.dp)}</td>
+          <td><span class="badge ${tier}"><span class="bd"></span>${TIER_LABEL[tier]}</span></td>
+        </tr>
+      `;
+    }).join("");
+
+    document.querySelectorAll("thead button").forEach(btn => {
+      const active = btn.dataset.key === state.sortKey;
+      btn.classList.toggle("active", active);
+      btn.querySelector(".arrow").innerHTML = state.sortDir === 1 ? "&#9650;" : "&#9660;";
+    });
+
+    // tooltip bindings
+    document.querySelectorAll("[data-tip]").forEach(el => {
+      el.addEventListener("mouseenter", () => showTooltip(el, el.dataset.tip));
+      el.addEventListener("mouseleave", hideTooltip);
+      el.addEventListener("focus", () => showTooltip(el, el.dataset.tip));
+      el.addEventListener("blur", hideTooltip);
+    });
+  }
+
+  document.getElementById("gradeTabs").addEventListener("click", e => {
+    const btn = e.target.closest("button"); if (!btn) return;
+    state.grade = btn.dataset.grade;
+    document.querySelectorAll("#gradeTabs button").forEach(b => b.classList.toggle("active", b===btn));
+    render();
+  });
+  document.getElementById("radiusSeg").addEventListener("click", e => {
+    const btn = e.target.closest("button"); if (!btn) return;
+    state.radius = Number(btn.dataset.radius);
+    document.querySelectorAll("#radiusSeg button").forEach(b => b.classList.toggle("active", b===btn));
+    render();
+  });
+  document.getElementById("searchInput").addEventListener("input", e => {
+    state.query = e.target.value; render();
+  });
+  document.querySelector("thead").addEventListener("click", e => {
+    const btn = e.target.closest("button"); if (!btn) return;
+    const key = btn.dataset.key;
+    if (state.sortKey === key) state.sortDir *= -1;
+    else { state.sortKey = key; state.sortDir = 1; }
+    render();
+  });
+
+  render();
+})();
+</script>
