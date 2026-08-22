@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Athens Gas Watch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -229,7 +234,7 @@
 
   /* ---------- table ---------- */
   .table-panel{ background:var(--surface); border:1px solid var(--hairline); border-radius:12px; padding:18px 20px 8px; box-shadow:var(--shadow); margin-bottom:22px; }
-  .table-scroll{ overflow-x:auto; }
+  .table-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
   table{ width:100%; border-collapse:collapse; min-width:600px; }
   thead th{ text-align:left; padding:0 10px 10px; border-bottom:1px solid var(--hairline); }
   thead th.num{ text-align:right; }
@@ -262,7 +267,39 @@
   /* ---------- footer ---------- */
   footer{ margin-top:8px; padding-top:16px; border-top:1px solid var(--hairline); }
   footer p{ font-size:12px; color:var(--ink-muted); line-height:1.6; margin:0 0 6px; max-width:80ch; }
+
+  /* ---------- price cell (credit/cash) ---------- */
+  .price-cell{ display:flex; flex-direction:column; align-items:flex-end; gap:1px; }
+  .price-main{ font-family:var(--font-mono); font-weight:700; font-size:13.5px; }
+  .price-alt{ font-family:var(--font-mono); font-size:10.5px; color:var(--ink-muted); font-weight:500; white-space:nowrap; }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 640px){
+    .wrap{ padding:20px 14px 44px; }
+    .filters{ padding:14px; gap:14px; }
+    .filter-group{ flex:1 1 100%; }
+    .filter-group[style*="flex:1"]{ min-width:0 !important; }
+    .tabs, .segmented{ flex-wrap:wrap; }
+    .search-field input{ font-size:16px; } /* keeps iOS Safari from auto-zooming on focus */
+    .panel{ padding:16px 14px 18px; }
+    .table-panel{ padding:16px 14px 6px; }
+    table{ min-width:480px; }
+    tbody td, thead th{ padding:9px 7px; font-size:12.5px; }
+    .kpi-tile{ padding:14px 14px; }
+  }
+  @media (max-width: 480px){
+    .rank-grid{ grid-template-columns: 104px 1fr 62px; column-gap:8px; }
+    .rank-name{ font-size:12px; }
+    .rank-sub{ font-size:10px; }
+    .rank-axis span{ font-size:9.5px; }
+    .kpi-grid{ grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); }
+  }
+  @media (hover:none){
+    .tabs button, .segmented button{ padding:9px 14px; }
+  }
 </style>
+</head>
+<body>
 
 <div class="wrap">
 
@@ -283,6 +320,7 @@
     <summary>How this data works <span class="chev">&#9660;</span></summary>
     <p>Live, pump-by-pump pricing lives behind GasBuddy's and AAA's own apps and isn't available as an open feed, so the 25 stations below are a <b style="color:var(--ink)">modeled illustration, not a live scrape</b>. Brands and roads reflect real Athens-area corridors &mdash; Atlanta Hwy, Lexington Rd, Epps Bridge Pkwy, Baxter St, Prince Ave &mdash; plus the surrounding towns of Bogart, Watkinsville, Winterville, Bishop, Nicholson, Hull, and Statham.</p>
     <p>Per-station regular prices are built around <b style="color:var(--ink)">AAA's verified Georgia average for today</b> (shown in the summary above), spread using typical local competitive patterns: warehouse-club and grocery fuel centers cheapest, single-brand stations in smaller towns highest. Mid-grade, premium, and diesel apply that day's real AAA Georgia grade ratios to each station's regular price. A GitHub Actions job re-fetches AAA's state average daily and re-anchors these figures to it &mdash; the station list and relative spread stay modeled, but the price level tracks the real market. For an exact price at a specific pump right now, check the GasBuddy or AAA app.</p>
+    <p>The <b style="color:var(--ink)">Credit / Cash toggle</b> applies a flat 10&cent;/gal discount for cash, a common posted-price practice at Georgia convenience stores. AAA's average itself doesn't split by payment method (it's effectively the credit/posted price), and the real discount varies by station &mdash; some retailers, including most warehouse clubs, charge one price regardless of how you pay.</p>
     <p class="cite">Source: AAA Gas Prices, Georgia state average (gasprices.aaa.com), refreshed automatically once per day.</p>
   </details>
 
@@ -294,6 +332,13 @@
         <button data-grade="mid">Mid-Grade</button>
         <button data-grade="premium">Premium</button>
         <button data-grade="diesel">Diesel</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Payment</span>
+      <div class="tabs" id="paymentTabs">
+        <button data-payment="credit" class="active">Credit</button>
+        <button data-payment="cash">Cash</button>
       </div>
     </div>
     <div class="filter-group">
@@ -329,7 +374,7 @@
   <div class="charts">
     <div class="panel">
       <div class="panel-title">Price ranking</div>
-      <div class="panel-caption">Every tracked station, cheapest to priciest, for the selected grade.</div>
+      <div class="panel-caption" id="rankCaption">Every tracked station, cheapest to priciest.</div>
       <div class="rank-grid">
         <div class="rank-head"></div>
         <div class="rank-head"><div class="rank-axis" id="rankAxis"></div></div>
@@ -339,7 +384,7 @@
     </div>
     <div class="panel">
       <div class="panel-title">Where they are</div>
-      <div class="panel-caption">Direction &amp; distance from downtown Athens.</div>
+      <div class="panel-caption" id="compassCaption">Direction &amp; distance from downtown Athens.</div>
       <div class="compass-wrap"><svg id="compassSvg" viewBox="0 0 320 320"></svg></div>
       <div class="compass-note">Schematic layout &mdash; not to exact map scale.</div>
     </div>
@@ -351,7 +396,6 @@
         <thead>
           <tr>
             <th><button data-key="name" class="active">Station <span class="arrow">&#9660;</span></button></th>
-            <th>Location</th>
             <th class="num"><button data-key="dist">Distance <span class="arrow">&#9660;</span></button></th>
             <th class="num"><button data-key="dp">Price <span class="arrow">&#9660;</span></button></th>
             <th>Vs. area avg</th>
@@ -363,7 +407,7 @@
   </div>
 
   <footer>
-    <p>Built as a demonstration dashboard. Prices are a modeled illustration anchored to AAA's real Georgia state average for Aug 21, 2026 &mdash; not a live feed of individual station prices. For current pump-level prices, use GasBuddy, the AAA app, or a station's posted sign.</p>
+    <p>Built as a demonstration dashboard. Prices are a modeled illustration, re-anchored daily to AAA's real Georgia state average &mdash; not a live feed of individual station or pump prices. For current pump-level prices, use GasBuddy, the AAA app, or a station's posted sign.</p>
   </footer>
 
 </div>
@@ -401,6 +445,8 @@
   ];
 
   const GRADE_LABEL = { regular:"Regular", mid:"Mid-Grade", premium:"Premium", diesel:"Diesel" };
+  const PAYMENT_LABEL = { credit:"Credit", cash:"Cash" };
+  const CASH_DISCOUNT = 0.10; // typical posted cash discount, per gallon, flat across grades
   const DIR_DEG = { N:0, NE:45, E:90, SE:135, S:180, SW:225, W:270, NW:315 };
   const TIER_LABEL = { good:"Below avg", warn:"Near avg", serious:"Above avg" };
 
@@ -417,10 +463,10 @@
   let AAA_GA_AVG  = BASELINE_AAA;
   let SCALE = 1;
 
-  const state = { grade:"regular", radius:15, query:"", sortKey:"dp", sortDir:1 };
+  const state = { grade:"regular", payment:"credit", radius:15, query:"", sortKey:"dp", sortDir:1 };
 
   const fmt = n => "$" + n.toFixed(2);
-  const priceFor = (s, grade) => s.price * SCALE * GRADE_RATIO[grade];
+  const priceFor = (s, grade) => s.price * SCALE * GRADE_RATIO[grade]; // credit / posted price
   const tierFor = (p, avg, grade) => {
     const t = 0.05 * GRADE_RATIO[grade];
     if (p <= avg - t) return "good";
@@ -433,7 +479,12 @@
     return STATIONS
       .filter(s => s.dist <= state.radius)
       .filter(s => !q || (s.brand + " " + s.road).toLowerCase().includes(q))
-      .map(s => Object.assign({}, s, { dp: priceFor(s, state.grade) }));
+      .map(s => {
+        const creditDp = priceFor(s, state.grade);
+        const cashDp = creditDp - CASH_DISCOUNT;
+        const dp = state.payment === "cash" ? cashDp : creditDp;
+        return Object.assign({}, s, { dp, creditDp, cashDp });
+      });
   }
 
   const tooltip = document.getElementById("tooltip");
@@ -454,11 +505,16 @@
     const compassSvg = document.getElementById("compassSvg");
     const tableBody = document.getElementById("tableBody");
 
+    document.getElementById("rankCaption").textContent =
+      `Every tracked station, cheapest to priciest — ${GRADE_LABEL[state.grade]} · ${PAYMENT_LABEL[state.payment]} prices.`;
+    document.getElementById("compassCaption").textContent =
+      `Direction & distance from downtown Athens — ${PAYMENT_LABEL[state.payment]} prices.`;
+
     if (list.length === 0){
       kpiGrid.innerHTML = "";
       rankRows.innerHTML = ""; rankAxis.innerHTML = "";
       compassSvg.innerHTML = "";
-      tableBody.innerHTML = '<tr><td colspan="5"><div class="empty-state">No stations match &mdash; try widening the radius or clearing your search.</div></td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="4"><div class="empty-state">No stations match &mdash; try widening the radius or clearing your search.</div></td></tr>';
       return;
     }
 
@@ -472,9 +528,9 @@
     // ---- KPI tiles ----
     kpiGrid.innerHTML = `
       <div class="kpi-tile">
-        <div class="kpi-label">Area average &middot; ${GRADE_LABEL[state.grade]}</div>
+        <div class="kpi-label">Area average &middot; ${GRADE_LABEL[state.grade]} &middot; ${PAYMENT_LABEL[state.payment]}</div>
         <div class="kpi-value">${fmt(avg)}</div>
-        <div class="kpi-sub">AAA GA avg today: <b>${fmt(AAA_GA_AVG[state.grade])}</b></div>
+        <div class="kpi-sub">AAA GA avg today (credit): <b>${fmt(AAA_GA_AVG[state.grade])}</b></div>
       </div>
       <div class="kpi-tile">
         <div class="kpi-label">Cheapest nearby</div>
@@ -513,7 +569,7 @@
     const sortedRank = list.slice().sort((a,b) => a.dp - b.dp);
     rankRows.innerHTML = sortedRank.map(s => {
       const tier = tierFor(s.dp, avg, state.grade);
-      const label = `${s.brand}, ${s.road}, ${s.dist} mi ${s.dir}, ${fmt(s.dp)}, ${TIER_LABEL[tier]}`;
+      const label = `${s.brand}, ${s.road}, ${s.dist} mi ${s.dir}, ${fmt(s.dp)} (${PAYMENT_LABEL[state.payment]}), ${TIER_LABEL[tier]}`;
       return `
         <div class="rank-row">
           <div class="rank-grid">
@@ -573,7 +629,7 @@
       const x = cx + r*Math.sin(rad), y = cy - r*Math.cos(rad);
       const tier = tierFor(s.dp, avg, state.grade);
       const color = tier==="good" ? "var(--good)" : tier==="serious" ? "var(--serious-dot)" : "var(--warn-dot)";
-      const label = `${s.brand}, ${s.road}, ${s.dist} mi ${s.dir}, ${fmt(s.dp)}`;
+      const label = `${s.brand}, ${s.road}, ${s.dist} mi ${s.dir}, ${fmt(s.dp)} (${PAYMENT_LABEL[state.payment]})`;
       svg += `<circle class="cdot" cx="${x}" cy="${y}" r="5.5" fill="${color}" stroke="var(--surface)" stroke-width="2" tabindex="0" data-tip="${label}" aria-label="${label}" style="cursor:pointer"/>`;
     });
 
@@ -592,12 +648,21 @@
 
     tableBody.innerHTML = sortedTable.map(s => {
       const tier = tierFor(s.dp, avg, state.grade);
+      const altLabel = state.payment === "cash" ? "credit" : "cash";
+      const altPrice = state.payment === "cash" ? s.creditDp : s.cashDp;
       return `
         <tr>
-          <td class="station">${s.brand}</td>
-          <td><span class="loc">${s.road}</span></td>
+          <td class="station">
+            <div>${s.brand}</div>
+            <div class="loc">${s.road}</div>
+          </td>
           <td class="num">${s.dist} mi ${s.dir}</td>
-          <td class="num">${fmt(s.dp)}</td>
+          <td class="num">
+            <div class="price-cell">
+              <div class="price-main">${fmt(s.dp)}</div>
+              <div class="price-alt">${altLabel} ${fmt(altPrice)}</div>
+            </div>
+          </td>
           <td><span class="badge ${tier}"><span class="bd"></span>${TIER_LABEL[tier]}</span></td>
         </tr>
       `;
@@ -622,6 +687,12 @@
     const btn = e.target.closest("button"); if (!btn) return;
     state.grade = btn.dataset.grade;
     document.querySelectorAll("#gradeTabs button").forEach(b => b.classList.toggle("active", b===btn));
+    render();
+  });
+  document.getElementById("paymentTabs").addEventListener("click", e => {
+    const btn = e.target.closest("button"); if (!btn) return;
+    state.payment = btn.dataset.payment;
+    document.querySelectorAll("#paymentTabs button").forEach(b => b.classList.toggle("active", b===btn));
     render();
   });
   document.getElementById("radiusSeg").addEventListener("click", e => {
@@ -670,3 +741,5 @@
   init();
 })();
 </script>
+</body>
+</html>
