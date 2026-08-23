@@ -288,10 +288,11 @@
     .kpi-tile{ padding:14px 14px; }
   }
   @media (max-width: 480px){
-    .rank-grid{ grid-template-columns: 104px 1fr 62px; column-gap:8px; }
+    .rank-grid{ grid-template-columns: 96px 1fr 54px; column-gap:6px; }
     .rank-name{ font-size:12px; }
     .rank-sub{ font-size:10px; }
-    .rank-axis span{ font-size:9.5px; }
+    .rank-value{ font-size:11.5px; }
+    .rank-axis{ display:none; } /* per-row values + tier color already carry this; three labels collide at this width */
     .kpi-grid{ grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); }
   }
   @media (hover:none){
@@ -574,8 +575,8 @@
         <div class="rank-row">
           <div class="rank-grid">
             <div>
-              <div class="rank-name">${s.brand}</div>
-              <div class="rank-sub">${s.road} &middot; ${s.dist} mi</div>
+              <div class="rank-name" title="${s.brand}">${s.brand}</div>
+              <div class="rank-sub" title="${s.road}">${s.road} &middot; ${s.dist} mi</div>
             </div>
             <div class="rank-track">
               <div class="track-line"></div>
