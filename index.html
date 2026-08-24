@@ -110,7 +110,7 @@
   .illustrative-pill:hover{ border-color:var(--accent); color:var(--accent); }
   .illustrative-pill .swatch-dot{ width:7px; height:7px; border-radius:50%; background:var(--accent); flex:none; }
   .live-stamp{ font-size:12.5px; color:var(--ink-muted); }
-  .live-stamp #refreshedStamp{ color:var(--ink-2); font-weight:500; }
+  .live-stamp .refreshed-stamp{ color:var(--ink-2); font-weight:500; }
 
   details.methodology{
     background:var(--surface); border:1px solid var(--hairline); border-radius:12px;
@@ -307,14 +307,14 @@
   <div class="eyebrow"><span class="pump">⛽</span> Fuel prices &middot; within 15 mi of Athens, GA</div>
   <h1>Athens Gas Watch</h1>
   <div class="sub-row">
-    <span id="dateLabel">Friday, August 21, 2026</span>
+    <span data-element="date-label">Friday, August 21, 2026</span>
     <span class="dot-sep">&middot;</span>
     <span>25 stations tracked</span>
     <span class="dot-sep">&middot;</span>
     <a class="illustrative-pill" href="#methodology"><span class="swatch-dot"></span>Illustrative data &mdash; see methodology</a>
   </div>
-  <div class="sub-row" id="autoUpdateRow" style="display:none;">
-    <span class="live-stamp">&#8635; Auto-updated daily &middot; anchor last refreshed <span id="refreshedStamp"></span></span>
+  <div class="sub-row" data-element="auto-update-row" style="display:none;">
+    <span class="live-stamp">&#8635; Auto-updated daily &middot; anchor last refreshed <span class="refreshed-stamp" data-element="refreshed-stamp"></span></span>
   </div>
 
   <details class="methodology" id="methodology">
@@ -328,38 +328,38 @@
   <div class="filters">
     <div class="filter-group">
       <span class="filter-label">Grade</span>
-      <div class="tabs" id="gradeTabs">
-        <button data-grade="regular" class="active">Regular</button>
-        <button data-grade="mid">Mid-Grade</button>
-        <button data-grade="premium">Premium</button>
-        <button data-grade="diesel">Diesel</button>
+      <div class="tabs">
+        <button data-filter="grade" data-value="regular" class="active">Regular</button>
+        <button data-filter="grade" data-value="mid">Mid-Grade</button>
+        <button data-filter="grade" data-value="premium">Premium</button>
+        <button data-filter="grade" data-value="diesel">Diesel</button>
       </div>
     </div>
     <div class="filter-group">
       <span class="filter-label">Payment</span>
-      <div class="tabs" id="paymentTabs">
-        <button data-payment="credit" class="active">Credit</button>
-        <button data-payment="cash">Cash</button>
+      <div class="tabs">
+        <button data-filter="payment" data-value="credit" class="active">Credit</button>
+        <button data-filter="payment" data-value="cash">Cash</button>
       </div>
     </div>
     <div class="filter-group">
       <span class="filter-label">Radius</span>
-      <div class="segmented" id="radiusSeg">
-        <button data-radius="5">5 mi</button>
-        <button data-radius="10">10 mi</button>
-        <button data-radius="15" class="active">15 mi</button>
+      <div class="segmented">
+        <button data-filter="radius" data-value="5">5 mi</button>
+        <button data-filter="radius" data-value="10">10 mi</button>
+        <button data-filter="radius" data-value="15" class="active">15 mi</button>
       </div>
     </div>
     <div class="filter-group" style="flex:1; min-width:200px;">
       <span class="filter-label">Search</span>
       <div class="search-field">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="searchInput" type="text" placeholder="Brand or road, e.g. Kroger, Atlanta Hwy" autocomplete="off">
+        <input data-element="search-input" type="text" placeholder="Brand or road, e.g. Kroger, Atlanta Hwy" autocomplete="off">
       </div>
     </div>
   </div>
 
-  <div class="kpi-grid" id="kpiGrid"></div>
+  <div class="kpi-grid" data-element="kpi-grid"></div>
 
   <div class="tip-row">
     <span class="tip-tag">General pattern</span>
@@ -372,21 +372,21 @@
     <div class="legend-item"><span class="swatch serious"></span>Above area average</div>
   </div>
 
-  <div class="charts">
+  <div class="charts" data-element="charts">
     <div class="panel">
       <div class="panel-title">Price ranking</div>
-      <div class="panel-caption" id="rankCaption">Every tracked station, cheapest to priciest.</div>
+      <div class="panel-caption" data-element="rank-caption">Every tracked station, cheapest to priciest.</div>
       <div class="rank-grid">
         <div class="rank-head"></div>
-        <div class="rank-head"><div class="rank-axis" id="rankAxis"></div></div>
+        <div class="rank-head"><div class="rank-axis" data-element="rank-axis"></div></div>
         <div class="rank-head" style="text-align:right;">Price</div>
       </div>
-      <div id="rankRows"></div>
+      <div data-element="rank-rows"></div>
     </div>
     <div class="panel">
       <div class="panel-title">Where they are</div>
-      <div class="panel-caption" id="compassCaption">Direction &amp; distance from downtown Athens.</div>
-      <div class="compass-wrap"><svg id="compassSvg" viewBox="0 0 320 320"></svg></div>
+      <div class="panel-caption" data-element="compass-caption">Direction &amp; distance from downtown Athens.</div>
+      <div class="compass-wrap"><svg data-element="compass-svg" viewBox="0 0 320 320"></svg></div>
       <div class="compass-note">Schematic layout &mdash; not to exact map scale.</div>
     </div>
   </div>
@@ -394,15 +394,15 @@
   <div class="table-panel">
     <div class="table-scroll">
       <table>
-        <thead>
+        <thead data-element="table-head">
           <tr>
-            <th><button data-key="name" class="active">Station <span class="arrow">&#9660;</span></button></th>
-            <th class="num"><button data-key="dist">Distance <span class="arrow">&#9660;</span></button></th>
-            <th class="num"><button data-key="dp">Price <span class="arrow">&#9660;</span></button></th>
+            <th><button data-action="sort" data-key="name" class="active">Station <span class="arrow">&#9660;</span></button></th>
+            <th class="num"><button data-action="sort" data-key="dist">Distance <span class="arrow">&#9660;</span></button></th>
+            <th class="num"><button data-action="sort" data-key="dp">Price <span class="arrow">&#9660;</span></button></th>
             <th>Vs. area avg</th>
           </tr>
         </thead>
-        <tbody id="tableBody"></tbody>
+        <tbody data-element="table-body"></tbody>
       </table>
     </div>
   </div>
@@ -413,11 +413,74 @@
 
 </div>
 
-<div class="tooltip" id="tooltip"></div>
+<div class="tooltip" data-element="tooltip"></div>
+
+<!-- ============ Render templates (cloned at render time — no innerHTML) ============ -->
+
+<template data-template="kpi-tile">
+  <div class="kpi-tile">
+    <div class="kpi-label" data-field="label"></div>
+    <div class="kpi-value" data-field="value"></div>
+    <div class="kpi-sub" data-field="sub"></div>
+  </div>
+</template>
+
+<template data-template="axis-tick">
+  <span data-field="tick"></span>
+</template>
+
+<template data-template="rank-row">
+  <div class="rank-row">
+    <div class="rank-grid">
+      <div>
+        <div class="rank-name" data-field="name"></div>
+        <div class="rank-sub" data-field="sub"></div>
+      </div>
+      <div class="rank-track">
+        <div class="track-line"></div>
+        <div class="rank-dot" data-field="dot" tabindex="0"></div>
+      </div>
+      <div class="rank-value" data-field="value"></div>
+    </div>
+  </div>
+</template>
+
+<template data-template="table-row">
+  <tr>
+    <td class="station">
+      <div data-field="brand"></div>
+      <div class="loc" data-field="road"></div>
+    </td>
+    <td class="num" data-field="distance"></td>
+    <td class="num">
+      <div class="price-cell">
+        <div class="price-main" data-field="price-main"></div>
+        <div class="price-alt" data-field="price-alt"></div>
+      </div>
+    </td>
+    <td>
+      <span class="badge" data-field="badge"><span class="bd"></span><span data-field="badge-label"></span></span>
+    </td>
+  </tr>
+</template>
+
+<!-- SVG fragments must be parsed inside an <svg> wrapper so the parser assigns the SVG namespace -->
+<template data-template="compass-ring">
+  <svg><circle class="c-ring" fill="none" stroke="var(--hairline)" stroke-width="1"/></svg>
+</template>
+
+<template data-template="compass-station-dot">
+  <svg><circle class="cdot" r="5.5" stroke="var(--surface)" stroke-width="2" tabindex="0" style="cursor:pointer"/></svg>
+</template>
 
 <script>
 (function(){
-  const STATIONS = [
+  "use strict";
+
+  // ============================================================
+  // Data
+  // ============================================================
+  const STATIONS = Object.freeze([
     {brand:"Costco Fuel",            road:"Lexington Rd",          dir:"SE", dist:3.1,  price:3.55},
     {brand:"Sam's Club Fuel Center", road:"Lexington Rd",          dir:"SE", dist:3.4,  price:3.57},
     {brand:"Kroger Fuel Center",     road:"Atlanta Hwy",           dir:"W",  dist:4.0,  price:3.61},
@@ -443,37 +506,76 @@
     {brand:"Shell",                  road:"Hwy 15, Bishop",        dir:"S",  dist:10.5, price:3.97},
     {brand:"Citgo",                  road:"Hwy 441, Nicholson",    dir:"N",  dist:12.0, price:4.01},
     {brand:"Marathon",               road:"Hwy 82, Statham",       dir:"E",  dist:14.5, price:4.05},
-  ];
+  ].map(Object.freeze));
 
-  const GRADE_LABEL = { regular:"Regular", mid:"Mid-Grade", premium:"Premium", diesel:"Diesel" };
-  const PAYMENT_LABEL = { credit:"Credit", cash:"Cash" };
+  const GRADE_LABEL   = Object.freeze({ regular:"Regular", mid:"Mid-Grade", premium:"Premium", diesel:"Diesel" });
+  const PAYMENT_LABEL = Object.freeze({ credit:"Credit", cash:"Cash" });
+  const DIR_DEG       = Object.freeze({ N:0, NE:45, E:90, SE:135, S:180, SW:225, W:270, NW:315 });
+  const TIER_LABEL    = Object.freeze({ good:"Below avg", warn:"Near avg", serious:"Above avg" });
   const CASH_DISCOUNT = 0.10; // typical posted cash discount, per gallon, flat across grades
-  const DIR_DEG = { N:0, NE:45, E:90, SE:135, S:180, SW:225, W:270, NW:315 };
-  const TIER_LABEL = { good:"Below avg", warn:"Near avg", serious:"Above avg" };
 
   // Baseline anchor used to originally calibrate the modeled station prices
   // (AAA's verified Georgia average, Aug 21, 2026). A daily GitHub Actions job
   // fetches the current AAA average into data.json; when present, it rescales
   // this whole modeled dataset to today's real price level instead of staying
   // frozen on the baseline date.
-  const BASELINE_AAA  = { regular:3.8264, mid:4.3129, premium:4.7367, diesel:5.4685 };
+  const BASELINE_AAA  = Object.freeze({ regular:3.8264, mid:4.3129, premium:4.7367, diesel:5.4685 });
   const BASELINE_DATE = "2026-08-21";
   const ratiosFrom = a => ({ regular:1, mid:a.mid/a.regular, premium:a.premium/a.regular, diesel:a.diesel/a.regular });
 
-  let GRADE_RATIO = ratiosFrom(BASELINE_AAA);
-  let AAA_GA_AVG  = BASELINE_AAA;
-  let SCALE = 1;
-
+  // ============================================================
+  // State
+  // ============================================================
   const state = { grade:"regular", payment:"credit", radius:15, query:"", sortKey:"dp", sortDir:1 };
+  const pricing = { ratio: ratiosFrom(BASELINE_AAA), aaaAvg: BASELINE_AAA, scale: 1 };
 
+  // ============================================================
+  // UI Registry — every DOM node the app touches, resolved once.
+  // This script tag sits at the end of <body>, so the DOM is already
+  // parsed and safe to query by the time this file runs (same guarantee
+  // DOMContentLoaded would give us here, without needing the listener).
+  // ============================================================
+  const UI = Object.freeze({
+    dateLabel:      document.querySelector('[data-element="date-label"]'),
+    autoUpdateRow:  document.querySelector('[data-element="auto-update-row"]'),
+    refreshedStamp: document.querySelector('[data-element="refreshed-stamp"]'),
+    searchInput:    document.querySelector('[data-element="search-input"]'),
+    kpiGrid:        document.querySelector('[data-element="kpi-grid"]'),
+    rankCaption:    document.querySelector('[data-element="rank-caption"]'),
+    rankAxis:       document.querySelector('[data-element="rank-axis"]'),
+    rankRows:       document.querySelector('[data-element="rank-rows"]'),
+    compassCaption: document.querySelector('[data-element="compass-caption"]'),
+    compassSvg:     document.querySelector('[data-element="compass-svg"]'),
+    tableHead:      document.querySelector('[data-element="table-head"]'),
+    tableBody:      document.querySelector('[data-element="table-body"]'),
+    charts:         document.querySelector('[data-element="charts"]'),
+    tooltip:        document.querySelector('[data-element="tooltip"]'),
+  });
+
+  const SORT_BUTTONS = Array.from(UI.tableHead.querySelectorAll("button"));
+  const tpl = name => document.querySelector(`template[data-template="${name}"]`).content;
+
+  // ============================================================
+  // Formatting / business-logic helpers (unchanged from original)
+  // ============================================================
   const fmt = n => "$" + n.toFixed(2);
-  const priceFor = (s, grade) => s.price * SCALE * GRADE_RATIO[grade]; // credit / posted price
+  const priceFor = (s, grade) => s.price * pricing.scale * pricing.ratio[grade]; // credit / posted price
   const tierFor = (p, avg, grade) => {
-    const t = 0.05 * GRADE_RATIO[grade];
+    const t = 0.05 * pricing.ratio[grade];
     if (p <= avg - t) return "good";
     if (p >= avg + t) return "serious";
     return "warn";
   };
+
+  // Fills an element with a mix of plain text and bold text, safely
+  // (createTextNode / textContent only — never innerHTML).
+  function fillTextParts(el, parts){
+    el.replaceChildren(...parts.map(part =>
+      typeof part === "string"
+        ? document.createTextNode(part)
+        : Object.assign(document.createElement("b"), { textContent: part.bold })
+    ));
+  }
 
   function getFiltered(){
     const q = state.query.trim().toLowerCase();
@@ -488,255 +590,351 @@
       });
   }
 
-  const tooltip = document.getElementById("tooltip");
-  function showTooltip(el, html){
-    const r = el.getBoundingClientRect();
-    tooltip.innerHTML = html;
-    tooltip.style.left = (r.left + r.width/2) + "px";
-    tooltip.style.top = (r.top - 8) + "px";
-    tooltip.classList.add("show");
+  // ============================================================
+  // Rendering — DocumentFragment batching + template cloning throughout,
+  // one replaceChildren() call per region instead of per-row DOM writes.
+  // ============================================================
+  function renderKPIs(list, avg, min, max, cheapest, priciest){
+    const tiles = [
+      {
+        label: `Area average · ${GRADE_LABEL[state.grade]} · ${PAYMENT_LABEL[state.payment]}`,
+        value: fmt(avg), tier: null,
+        sub: ["AAA GA avg today (credit): ", { bold: fmt(pricing.aaaAvg[state.grade]) }],
+      },
+      {
+        label: "Cheapest nearby", value: fmt(cheapest.dp), tier: "good",
+        sub: [{ bold: cheapest.brand }, ` · ${cheapest.dist} mi ${cheapest.dir}`],
+      },
+      {
+        label: "Most expensive", value: fmt(priciest.dp), tier: "serious",
+        sub: [{ bold: priciest.brand }, ` · ${priciest.dist} mi ${priciest.dir}`],
+      },
+      {
+        label: "Price spread", value: fmt(max - min), tier: null,
+        sub: ["cheapest to priciest in range"],
+      },
+      {
+        label: "Stations shown", value: String(list.length), tier: null,
+        sub: ["within ", { bold: `${state.radius} mi` }, " of Athens, GA"],
+      },
+    ];
+
+    const frag = document.createDocumentFragment();
+    tiles.forEach(t => {
+      const node = tpl("kpi-tile").cloneNode(true);
+      node.querySelector('[data-field="label"]').textContent = t.label;
+      const valueEl = node.querySelector('[data-field="value"]');
+      valueEl.textContent = t.value;
+      if (t.tier) valueEl.classList.add(t.tier);
+      fillTextParts(node.querySelector('[data-field="sub"]'), t.sub);
+      frag.appendChild(node);
+    });
+    UI.kpiGrid.replaceChildren(frag);
   }
-  function hideTooltip(){ tooltip.classList.remove("show"); }
 
-  function render(){
-    const list = getFiltered();
-    const kpiGrid = document.getElementById("kpiGrid");
-    const rankRows = document.getElementById("rankRows");
-    const rankAxis = document.getElementById("rankAxis");
-    const compassSvg = document.getElementById("compassSvg");
-    const tableBody = document.getElementById("tableBody");
-
-    document.getElementById("rankCaption").textContent =
-      `Every tracked station, cheapest to priciest — ${GRADE_LABEL[state.grade]} · ${PAYMENT_LABEL[state.payment]} prices.`;
-    document.getElementById("compassCaption").textContent =
-      `Direction & distance from downtown Athens — ${PAYMENT_LABEL[state.payment]} prices.`;
-
-    if (list.length === 0){
-      kpiGrid.innerHTML = "";
-      rankRows.innerHTML = ""; rankAxis.innerHTML = "";
-      compassSvg.innerHTML = "";
-      tableBody.innerHTML = '<tr><td colspan="4"><div class="empty-state">No stations match &mdash; try widening the radius or clearing your search.</div></td></tr>';
-      return;
-    }
-
-    const prices = list.map(s => s.dp);
-    const avg = prices.reduce((a,b) => a+b, 0) / prices.length;
-    const min = Math.min.apply(null, prices);
-    const max = Math.max.apply(null, prices);
-    const cheapest = list.slice().sort((a,b)=>a.dp-b.dp)[0];
-    const priciest = list.slice().sort((a,b)=>b.dp-a.dp)[0];
-
-    // ---- KPI tiles ----
-    kpiGrid.innerHTML = `
-      <div class="kpi-tile">
-        <div class="kpi-label">Area average &middot; ${GRADE_LABEL[state.grade]} &middot; ${PAYMENT_LABEL[state.payment]}</div>
-        <div class="kpi-value">${fmt(avg)}</div>
-        <div class="kpi-sub">AAA GA avg today (credit): <b>${fmt(AAA_GA_AVG[state.grade])}</b></div>
-      </div>
-      <div class="kpi-tile">
-        <div class="kpi-label">Cheapest nearby</div>
-        <div class="kpi-value good">${fmt(cheapest.dp)}</div>
-        <div class="kpi-sub"><b>${cheapest.brand}</b> &middot; ${cheapest.dist} mi ${cheapest.dir}</div>
-      </div>
-      <div class="kpi-tile">
-        <div class="kpi-label">Most expensive</div>
-        <div class="kpi-value serious">${fmt(priciest.dp)}</div>
-        <div class="kpi-sub"><b>${priciest.brand}</b> &middot; ${priciest.dist} mi ${priciest.dir}</div>
-      </div>
-      <div class="kpi-tile">
-        <div class="kpi-label">Price spread</div>
-        <div class="kpi-value">${fmt(max-min)}</div>
-        <div class="kpi-sub">cheapest to priciest in range</div>
-      </div>
-      <div class="kpi-tile">
-        <div class="kpi-label">Stations shown</div>
-        <div class="kpi-value">${list.length}</div>
-        <div class="kpi-sub">within <b>${state.radius} mi</b> of Athens, GA</div>
-      </div>
-    `;
-
-    // ---- rank chart ----
-    const pad = 0.06 * GRADE_RATIO[state.grade];
+  function renderRankChart(list, avg, min, max){
+    const pad = 0.06 * pricing.ratio[state.grade];
     const domMin = Math.max(0, min - pad);
     const domMax = max + pad;
     const pct = v => ((v - domMin) / (domMax - domMin)) * 100;
 
-    rankAxis.innerHTML = `
-      <span style="left:${pct(min)}%">${fmt(min)}</span>
-      <span class="avg-tick" style="left:${pct(avg)}%">avg ${fmt(avg)}</span>
-      <span style="left:${pct(max)}%">${fmt(max)}</span>
-    `;
+    const axisFrag = document.createDocumentFragment();
+    [
+      { value: min, text: fmt(min) },
+      { value: avg, text: `avg ${fmt(avg)}`, isAvg: true },
+      { value: max, text: fmt(max) },
+    ].forEach(tick => {
+      const node = tpl("axis-tick").cloneNode(true);
+      const span = node.querySelector('[data-field="tick"]');
+      span.textContent = tick.text;
+      span.style.left = pct(tick.value) + "%";
+      if (tick.isAvg) span.classList.add("avg-tick");
+      axisFrag.appendChild(node);
+    });
+    UI.rankAxis.replaceChildren(axisFrag);
 
-    const sortedRank = list.slice().sort((a,b) => a.dp - b.dp);
-    rankRows.innerHTML = sortedRank.map(s => {
+    const rowsFrag = document.createDocumentFragment();
+    list.slice().sort((a, b) => a.dp - b.dp).forEach(s => {
       const tier = tierFor(s.dp, avg, state.grade);
       const label = `${s.brand}, ${s.road}, ${s.dist} mi ${s.dir}, ${fmt(s.dp)} (${PAYMENT_LABEL[state.payment]}), ${TIER_LABEL[tier]}`;
-      return `
-        <div class="rank-row">
-          <div class="rank-grid">
-            <div>
-              <div class="rank-name" title="${s.brand}">${s.brand}</div>
-              <div class="rank-sub" title="${s.road}">${s.road} &middot; ${s.dist} mi</div>
-            </div>
-            <div class="rank-track">
-              <div class="track-line"></div>
-              <div class="rank-dot ${tier}" style="left:${pct(s.dp)}%" tabindex="0"
-                   data-tip="${label}" aria-label="${label}"></div>
-            </div>
-            <div class="rank-value">${fmt(s.dp)}</div>
-          </div>
-        </div>
-      `;
-    }).join("");
+      const node = tpl("rank-row").cloneNode(true);
 
-    // ---- compass chart ----
+      const nameEl = node.querySelector('[data-field="name"]');
+      nameEl.textContent = s.brand;
+      nameEl.title = s.brand;
+
+      const subEl = node.querySelector('[data-field="sub"]');
+      subEl.textContent = `${s.road} · ${s.dist} mi`;
+      subEl.title = s.road;
+
+      const dot = node.querySelector('[data-field="dot"]');
+      dot.classList.add(tier);
+      dot.style.left = pct(s.dp) + "%";
+      dot.dataset.tip = label;
+      dot.setAttribute("aria-label", label);
+
+      node.querySelector('[data-field="value"]').textContent = fmt(s.dp);
+      rowsFrag.appendChild(node);
+    });
+    UI.rankRows.replaceChildren(rowsFrag);
+  }
+
+  function renderCompass(list, avg){
     const cx = 160, cy = 160, maxR = 138;
-    const rings = [5,10,15];
-    let svg = "";
-    rings.forEach(mi => {
-      const r = maxR * (mi/15);
-      svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--hairline)" stroke-width="1"/>`;
-    });
-    svg += `<text x="${cx+4}" y="${cy-maxR*(5/15)-4}" font-size="9" fill="var(--ink-muted)" font-family="var(--font-mono)">5mi</text>`;
-    svg += `<text x="${cx+4}" y="${cy-maxR*(10/15)-4}" font-size="9" fill="var(--ink-muted)" font-family="var(--font-mono)">10mi</text>`;
-    svg += `<text x="${cx+4}" y="${cy-maxR*(15/15)-4}" font-size="9" fill="var(--ink-muted)" font-family="var(--font-mono)">15mi</text>`;
+    const svgNS = "http://www.w3.org/2000/svg";
+    const frag = document.createDocumentFragment();
 
-    const compassPts = [["N",0],["E",90],["S",180],["W",270]];
-    compassPts.forEach(([label,deg]) => {
-      const rad = deg*Math.PI/180;
-      const lx = cx + (maxR+14)*Math.sin(rad), ly = cy - (maxR+14)*Math.cos(rad);
-      svg += `<line x1="${cx}" y1="${cy}" x2="${cx+maxR*Math.sin(rad)}" y2="${cy-maxR*Math.cos(rad)}" stroke="var(--hairline)" stroke-width="1"/>`;
-      svg += `<text x="${lx}" y="${ly+4}" font-size="11" font-weight="600" fill="var(--ink-muted)" font-family="var(--font-display)" text-anchor="middle">${label}</text>`;
-    });
-    svg += `<circle cx="${cx}" cy="${cy}" r="4" fill="var(--accent)"/>`;
-    svg += `<text x="${cx}" y="${cy-9}" font-size="9.5" fill="var(--accent)" font-family="var(--font-mono)" text-anchor="middle">Athens</text>`;
+    const textEl = (x, y, text, opts = {}) => {
+      const el = document.createElementNS(svgNS, "text");
+      el.setAttribute("x", x); el.setAttribute("y", y);
+      el.setAttribute("font-size", opts.size || 9);
+      el.setAttribute("fill", opts.fill || "var(--ink-muted)");
+      el.setAttribute("font-family", opts.font || "var(--font-mono)");
+      if (opts.weight) el.setAttribute("font-weight", opts.weight);
+      if (opts.anchor) el.setAttribute("text-anchor", opts.anchor);
+      el.textContent = text;
+      return el;
+    };
+    const lineEl = (x1, y1, x2, y2) => {
+      const el = document.createElementNS(svgNS, "line");
+      el.setAttribute("x1", x1); el.setAttribute("y1", y1);
+      el.setAttribute("x2", x2); el.setAttribute("y2", y2);
+      el.setAttribute("stroke", "var(--hairline)"); el.setAttribute("stroke-width", "1");
+      return el;
+    };
 
+    // range rings + mile labels
+    [5, 10, 15].forEach(mi => {
+      const r = maxR * (mi / 15);
+      const ring = tpl("compass-ring").cloneNode(true).querySelector(".c-ring");
+      ring.setAttribute("cx", cx); ring.setAttribute("cy", cy); ring.setAttribute("r", r);
+      frag.appendChild(ring);
+      frag.appendChild(textEl(cx + 4, cy - r - 4, `${mi}mi`));
+    });
+
+    // N/E/S/W spokes
+    [["N", 0], ["E", 90], ["S", 180], ["W", 270]].forEach(([label, deg]) => {
+      const rad = deg * Math.PI / 180;
+      const lx = cx + (maxR + 14) * Math.sin(rad), ly = cy - (maxR + 14) * Math.cos(rad);
+      frag.appendChild(lineEl(cx, cy, cx + maxR * Math.sin(rad), cy - maxR * Math.cos(rad)));
+      frag.appendChild(textEl(lx, ly + 4, label, { size: 11, weight: 600, font: "var(--font-display)", anchor: "middle" }));
+    });
+
+    // center marker
+    const center = document.createElementNS(svgNS, "circle");
+    center.setAttribute("cx", cx); center.setAttribute("cy", cy); center.setAttribute("r", 4);
+    center.setAttribute("fill", "var(--accent)");
+    frag.appendChild(center);
+    frag.appendChild(textEl(cx, cy - 9, "Athens", { size: 9.5, fill: "var(--accent)", anchor: "middle" }));
+
+    // station dots, spread within a direction bucket so co-located stations don't overlap
     const byDir = {};
     list.forEach(s => { (byDir[s.dir] = byDir[s.dir] || []).push(s); });
     Object.keys(byDir).forEach(dir => {
-      const group = byDir[dir].slice().sort((a,b) => a.dist - b.dist);
+      const group = byDir[dir].slice().sort((a, b) => a.dist - b.dist);
       const n = group.length;
-      const spread = n > 1 ? Math.min(30, (n-1)*6) : 0;
-      const step = n > 1 ? spread/(n-1) : 0;
-      group.forEach((s, i) => {
-        s._angleOffset = n > 1 ? (-spread/2 + i*step) : 0;
-      });
+      const spread = n > 1 ? Math.min(30, (n - 1) * 6) : 0;
+      const step = n > 1 ? spread / (n - 1) : 0;
+      group.forEach((s, i) => { s._angleOffset = n > 1 ? (-spread / 2 + i * step) : 0; });
     });
 
     list.forEach(s => {
       const deg = DIR_DEG[s.dir] + (s._angleOffset || 0);
-      const rad = deg*Math.PI/180;
-      const r = maxR * (s.dist/15);
-      const x = cx + r*Math.sin(rad), y = cy - r*Math.cos(rad);
+      const rad = deg * Math.PI / 180;
+      const r = maxR * (s.dist / 15);
+      const x = cx + r * Math.sin(rad), y = cy - r * Math.cos(rad);
       const tier = tierFor(s.dp, avg, state.grade);
-      const color = tier==="good" ? "var(--good)" : tier==="serious" ? "var(--serious-dot)" : "var(--warn-dot)";
+      const color = tier === "good" ? "var(--good)" : tier === "serious" ? "var(--serious-dot)" : "var(--warn-dot)";
       const label = `${s.brand}, ${s.road}, ${s.dist} mi ${s.dir}, ${fmt(s.dp)} (${PAYMENT_LABEL[state.payment]})`;
-      svg += `<circle class="cdot" cx="${x}" cy="${y}" r="5.5" fill="${color}" stroke="var(--surface)" stroke-width="2" tabindex="0" data-tip="${label}" aria-label="${label}" style="cursor:pointer"/>`;
+
+      const dot = tpl("compass-station-dot").cloneNode(true).querySelector(".cdot");
+      dot.setAttribute("cx", x); dot.setAttribute("cy", y);
+      dot.setAttribute("fill", color);
+      dot.dataset.tip = label;
+      dot.setAttribute("aria-label", label);
+      frag.appendChild(dot);
     });
 
-    compassSvg.innerHTML = svg;
+    UI.compassSvg.replaceChildren(frag);
+  }
 
-    // ---- table ----
-    const sortedTable = list.slice().sort((a,b) => {
+  function renderTable(list, avg){
+    const sorted = list.slice().sort((a, b) => {
       let av, bv;
       if (state.sortKey === "name"){ av = a.brand.toLowerCase(); bv = b.brand.toLowerCase(); }
       else if (state.sortKey === "dist"){ av = a.dist; bv = b.dist; }
       else { av = a.dp; bv = b.dp; }
-      if (av < bv) return -1*state.sortDir;
-      if (av > bv) return 1*state.sortDir;
+      if (av < bv) return -1 * state.sortDir;
+      if (av > bv) return 1 * state.sortDir;
       return 0;
     });
 
-    tableBody.innerHTML = sortedTable.map(s => {
+    const frag = document.createDocumentFragment();
+    sorted.forEach(s => {
       const tier = tierFor(s.dp, avg, state.grade);
       const altLabel = state.payment === "cash" ? "credit" : "cash";
       const altPrice = state.payment === "cash" ? s.creditDp : s.cashDp;
-      return `
-        <tr>
-          <td class="station">
-            <div>${s.brand}</div>
-            <div class="loc">${s.road}</div>
-          </td>
-          <td class="num">${s.dist} mi ${s.dir}</td>
-          <td class="num">
-            <div class="price-cell">
-              <div class="price-main">${fmt(s.dp)}</div>
-              <div class="price-alt">${altLabel} ${fmt(altPrice)}</div>
-            </div>
-          </td>
-          <td><span class="badge ${tier}"><span class="bd"></span>${TIER_LABEL[tier]}</span></td>
-        </tr>
-      `;
-    }).join("");
 
-    document.querySelectorAll("thead button").forEach(btn => {
-      const active = btn.dataset.key === state.sortKey;
-      btn.classList.toggle("active", active);
-      btn.querySelector(".arrow").innerHTML = state.sortDir === 1 ? "&#9650;" : "&#9660;";
+      const node = tpl("table-row").cloneNode(true);
+      node.querySelector('[data-field="brand"]').textContent = s.brand;
+      node.querySelector('[data-field="road"]').textContent = s.road;
+      node.querySelector('[data-field="distance"]').textContent = `${s.dist} mi ${s.dir}`;
+      node.querySelector('[data-field="price-main"]').textContent = fmt(s.dp);
+      node.querySelector('[data-field="price-alt"]').textContent = `${altLabel} ${fmt(altPrice)}`;
+      node.querySelector('[data-field="badge"]').classList.add(tier);
+      node.querySelector('[data-field="badge-label"]').textContent = TIER_LABEL[tier];
+      frag.appendChild(node);
     });
+    UI.tableBody.replaceChildren(frag);
 
-    // tooltip bindings
-    document.querySelectorAll("[data-tip]").forEach(el => {
-      el.addEventListener("mouseenter", () => showTooltip(el, el.dataset.tip));
-      el.addEventListener("mouseleave", hideTooltip);
-      el.addEventListener("focus", () => showTooltip(el, el.dataset.tip));
-      el.addEventListener("blur", hideTooltip);
+    SORT_BUTTONS.forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.key === state.sortKey);
+      btn.querySelector(".arrow").textContent = state.sortDir === 1 ? "▲" : "▼";
     });
   }
 
-  document.getElementById("gradeTabs").addEventListener("click", e => {
-    const btn = e.target.closest("button"); if (!btn) return;
-    state.grade = btn.dataset.grade;
-    document.querySelectorAll("#gradeTabs button").forEach(b => b.classList.toggle("active", b===btn));
+  function renderEmpty(){
+    UI.kpiGrid.replaceChildren();
+    UI.rankRows.replaceChildren();
+    UI.rankAxis.replaceChildren();
+    UI.compassSvg.replaceChildren();
+
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    empty.textContent = "No stations match — try widening the radius or clearing your search.";
+    const td = document.createElement("td");
+    td.colSpan = 4;
+    td.appendChild(empty);
+    const tr = document.createElement("tr");
+    tr.appendChild(td);
+    UI.tableBody.replaceChildren(tr);
+  }
+
+  function render(){
+    const list = getFiltered();
+
+    UI.rankCaption.textContent =
+      `Every tracked station, cheapest to priciest — ${GRADE_LABEL[state.grade]} · ${PAYMENT_LABEL[state.payment]} prices.`;
+    UI.compassCaption.textContent =
+      `Direction & distance from downtown Athens — ${PAYMENT_LABEL[state.payment]} prices.`;
+
+    if (list.length === 0){ renderEmpty(); return; }
+
+    const prices = list.map(s => s.dp);
+    const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+    const min = Math.min.apply(null, prices);
+    const max = Math.max.apply(null, prices);
+    const cheapest = list.slice().sort((a, b) => a.dp - b.dp)[0];
+    const priciest = list.slice().sort((a, b) => b.dp - a.dp)[0];
+
+    renderKPIs(list, avg, min, max, cheapest, priciest);
+    renderRankChart(list, avg, min, max);
+    renderCompass(list, avg);
+    renderTable(list, avg);
+  }
+
+  // ============================================================
+  // Events — delegated to static containers, bound once (not per render)
+  // ============================================================
+  function handleFilterClick(btn){
+    const { filter, value } = btn.dataset;
+    state[filter] = filter === "radius" ? Number(value) : value;
+    btn.parentElement.querySelectorAll(":scope > button").forEach(b => b.classList.toggle("active", b === btn));
     render();
-  });
-  document.getElementById("paymentTabs").addEventListener("click", e => {
-    const btn = e.target.closest("button"); if (!btn) return;
-    state.payment = btn.dataset.payment;
-    document.querySelectorAll("#paymentTabs button").forEach(b => b.classList.toggle("active", b===btn));
-    render();
-  });
-  document.getElementById("radiusSeg").addEventListener("click", e => {
-    const btn = e.target.closest("button"); if (!btn) return;
-    state.radius = Number(btn.dataset.radius);
-    document.querySelectorAll("#radiusSeg button").forEach(b => b.classList.toggle("active", b===btn));
-    render();
-  });
-  document.getElementById("searchInput").addEventListener("input", e => {
-    state.query = e.target.value; render();
-  });
-  document.querySelector("thead").addEventListener("click", e => {
-    const btn = e.target.closest("button"); if (!btn) return;
+  }
+
+  function handleSortClick(btn){
     const key = btn.dataset.key;
     if (state.sortKey === key) state.sortDir *= -1;
     else { state.sortKey = key; state.sortDir = 1; }
     render();
-  });
+  }
 
+  function bindControlEvents(){
+    // One delegated listener for every filter tab/segment and every sortable
+    // column header — static parents, routed by data-filter / data-action.
+    document.body.addEventListener("click", e => {
+      const filterBtn = e.target.closest("[data-filter]");
+      if (filterBtn){ handleFilterClick(filterBtn); return; }
+
+      const sortBtn = e.target.closest('[data-action="sort"]');
+      if (sortBtn){ handleSortClick(sortBtn); return; }
+    });
+
+    UI.searchInput.addEventListener("input", e => {
+      state.query = e.target.value;
+      render();
+    });
+  }
+
+  function showTooltip(el){
+    const r = el.getBoundingClientRect();
+    UI.tooltip.textContent = el.dataset.tip; // never innerHTML — data.json/STATIONS text only
+    UI.tooltip.style.left = (r.left + r.width / 2) + "px";
+    UI.tooltip.style.top = (r.top - 8) + "px";
+    UI.tooltip.classList.add("show");
+  }
+  function hideTooltip(){ UI.tooltip.classList.remove("show"); }
+
+  function bindTooltipEvents(){
+    // Delegated on the static .charts panel — covers rank-dots and compass
+    // dots alike, including ones that don't exist yet at bind time.
+    UI.charts.addEventListener("mouseover", e => {
+      const el = e.target.closest("[data-tip]");
+      if (el) showTooltip(el);
+    });
+    UI.charts.addEventListener("mouseout", e => {
+      if (e.target.closest("[data-tip]")) hideTooltip();
+    });
+    UI.charts.addEventListener("focusin", e => {
+      const el = e.target.closest("[data-tip]");
+      if (el) showTooltip(el);
+    });
+    UI.charts.addEventListener("focusout", e => {
+      if (e.target.closest("[data-tip]")) hideTooltip();
+    });
+  }
+
+  // ============================================================
+  // Data fetching
+  // ============================================================
   function formatDate(iso){
     return new Date(iso + "T12:00:00").toLocaleDateString("en-US", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
   }
   function formatStamp(iso){
-    return new Date(iso).toLocaleString("en-US", { dateStyle:"medium", timeStyle:"short", timeZone:"UTC" }) + " UTC";
+    return new Date(iso).toLocaleString("en-US", {
+      year:"numeric", month:"short", day:"numeric",
+      hour:"numeric", minute:"2-digit",
+      timeZone:"America/New_York", timeZoneName:"short"
+    });
   }
 
-  function init(){
-    fetch("./data.json", { cache:"no-store" })
+  function loadLiveAnchor(){
+    return fetch("./data.json", { cache:"no-store" })
       .then(r => r.ok ? r.json() : null)
-      .catch(() => null)
-      .then(live => {
-        if (live && live.aaa && typeof live.aaa.regular === "number" && live.aaa.regular > 0) {
-          AAA_GA_AVG  = live.aaa;
-          GRADE_RATIO = ratiosFrom(live.aaa);
-          SCALE = live.aaa.regular / BASELINE_AAA.regular;
-          document.getElementById("dateLabel").textContent = formatDate(live.updated || BASELINE_DATE);
-          if (live.generatedAt) {
-            document.getElementById("refreshedStamp").textContent = formatStamp(live.generatedAt);
-            document.getElementById("autoUpdateRow").style.display = "";
-          }
+      .catch(() => null);
+  }
+
+  // ============================================================
+  // Bootstrap
+  // ============================================================
+  function init(){
+    bindControlEvents();
+    bindTooltipEvents();
+
+    loadLiveAnchor().then(live => {
+      if (live && live.aaa && typeof live.aaa.regular === "number" && live.aaa.regular > 0){
+        pricing.aaaAvg = live.aaa;
+        pricing.ratio = ratiosFrom(live.aaa);
+        pricing.scale = live.aaa.regular / BASELINE_AAA.regular;
+        UI.dateLabel.textContent = formatDate(live.updated || BASELINE_DATE);
+        if (live.generatedAt){
+          UI.refreshedStamp.textContent = formatStamp(live.generatedAt);
+          UI.autoUpdateRow.style.display = "";
         }
-        render();
-      });
+      }
+      render();
+    });
   }
 
   init();
