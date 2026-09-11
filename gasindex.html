@@ -112,6 +112,15 @@
   .live-stamp{ font-size:12.5px; color:var(--ink-muted); }
   .live-stamp .refreshed-stamp{ color:var(--ink-2); font-weight:500; }
 
+  .header-bar{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .header-bar .eyebrow{ margin-bottom:10px; }
+  .auth-btn{
+    font-family:var(--font-display); font-weight:600; font-size:12.5px; letter-spacing:0.03em;
+    color:var(--accent-ink); background:var(--accent); border:1px solid var(--accent);
+    border-radius:8px; padding:7px 16px; cursor:pointer; white-space:nowrap; flex:none;
+  }
+  .auth-btn:hover{ opacity:0.88; }
+
   details.methodology{
     background:var(--surface); border:1px solid var(--hairline); border-radius:12px;
     padding:2px 18px; margin:0 0 26px; box-shadow:var(--shadow);
@@ -304,7 +313,10 @@
 
 <div class="wrap">
 
-  <div class="eyebrow"><span class="pump">⛽</span> Fuel prices &middot; within 15 mi of Athens, GA</div>
+  <div class="header-bar">
+    <div class="eyebrow"><span class="pump">⛽</span> Fuel prices &middot; within 15 mi of Athens, GA</div>
+    <button type="button" class="auth-btn" data-element="auth-btn">Log in</button>
+  </div>
   <h1>Athens Gas Watch</h1>
   <div class="sub-row">
     <span data-element="date-label">Friday, August 21, 2026</span>
