@@ -120,6 +120,12 @@
     border-radius:8px; padding:7px 16px; cursor:pointer; white-space:nowrap; flex:none;
   }
   .auth-btn:hover{ opacity:0.88; }
+  .auth-btn:disabled{ opacity:0.6; cursor:default; }
+  .auth-btn.recording{
+    background:var(--serious); border-color:var(--serious);
+    animation:rec-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes rec-pulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.72; } }
 
   details.methodology{
     background:var(--surface); border:1px solid var(--hairline); border-radius:12px;
@@ -950,6 +956,135 @@
   }
 
   init();
+})();
+</script>
+
+<!-- ============================================================
+     PROOF OF CONCEPT — session screen recording
+     Wired to the "Log in" / "Logout" button only. On login: prompts
+     the browser's native screen-share picker and starts recording.
+     On logout: stops recording and prompts a local file download.
+
+     This is a local-only POC — no upload/server. See conversation
+     notes for the cloud storage + multipart-upload path before any
+     real deployment (storage cost, retention policy, consent/legal,
+     and reliability for crashed/closed-tab sessions all still apply).
+     Requires a secure context: https:// or http://localhost — will
+     not work over file:// or plain http://.
+     ============================================================ -->
+<script>
+(function(){
+  "use strict";
+
+  const btn = document.querySelector('[data-element="auth-btn"]');
+  if (!btn) return;
+
+  let mediaRecorder = null;
+  let screenStream = null;
+  let recordedChunks = [];
+  let recording = false;
+
+  const supported = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia && window.MediaRecorder);
+  if (!supported){
+    btn.title = "Screen recording isn't supported in this browser.";
+  }
+
+  function pickMimeType(){
+    const candidates = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"];
+    return candidates.find(t => MediaRecorder.isTypeSupported(t)) || "";
+  }
+
+  function setBtnState(next){
+    // next: "login" | "recording" | "busy"
+    btn.disabled = next === "busy";
+    btn.classList.toggle("recording", next === "recording");
+    btn.textContent = next === "recording" ? "Logout" : next === "busy" ? "Please wait…" : "Log in";
+  }
+
+  async function startRecording(){
+    setBtnState("busy");
+    try {
+      screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: { ideal: 10, max: 15 } },
+        audio: false
+      });
+    } catch (err){
+      // User cancelled the picker or denied permission — stay logged out.
+      console.warn("Screen recording not started:", err.message);
+      setBtnState("login");
+      return;
+    }
+
+    recordedChunks = [];
+    const mimeType = pickMimeType();
+    try {
+      mediaRecorder = new MediaRecorder(screenStream, mimeType ? { mimeType } : undefined);
+    } catch (err){
+      console.error("MediaRecorder failed to start:", err);
+      screenStream.getTracks().forEach(t => t.stop());
+      screenStream = null;
+      setBtnState("login");
+      return;
+    }
+
+    mediaRecorder.ondataavailable = e => {
+      if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+    };
+
+    // If the student stops sharing via the browser's own control (rather
+    // than clicking Logout), treat it exactly like a logout: stop + save.
+    screenStream.getVideoTracks()[0].addEventListener("ended", () => {
+      if (recording) stopRecording();
+    });
+
+    mediaRecorder.start(1000); // flush a chunk every second
+    recording = true;
+    setBtnState("recording");
+  }
+
+  function downloadRecording(){
+    if (!recordedChunks.length) return;
+    const blob = new Blob(recordedChunks, { type: recordedChunks[0].type || "video/webm" });
+    const url = URL.createObjectURL(blob);
+    const ts = new Date().toISOString().replace(/[:.]/g, "-");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `session-recording-${ts}.webm`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  function stopRecording(){
+    setBtnState("busy");
+    recording = false;
+
+    const finish = () => {
+      if (screenStream) screenStream.getTracks().forEach(t => t.stop());
+      screenStream = null;
+      downloadRecording();
+      recordedChunks = [];
+      mediaRecorder = null;
+      setBtnState("login");
+    };
+
+    if (mediaRecorder && mediaRecorder.state !== "inactive"){
+      mediaRecorder.onstop = finish;
+      mediaRecorder.stop();
+    } else {
+      finish();
+    }
+  }
+
+  btn.addEventListener("click", () => {
+    if (!supported){
+      alert("Screen recording isn't supported in this browser.");
+      return;
+    }
+    if (recording) stopRecording();
+    else startRecording();
+  });
 })();
 </script>
 </body>
