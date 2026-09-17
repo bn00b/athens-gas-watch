@@ -1005,8 +1005,12 @@
     setBtnState("busy");
     try {
       screenStream = await navigator.mediaDevices.getDisplayMedia({
-        video: { frameRate: { ideal: 10, max: 15 } },
-        audio: false
+        video: {
+          frameRate: { ideal: 10, max: 15 },
+          displaySurface: "monitor"
+        },
+        audio: false,
+        selfBrowserSurface: "include"
       });
     } catch (err){
       // User cancelled the picker or denied permission — stay logged out.
