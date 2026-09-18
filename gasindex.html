@@ -963,21 +963,96 @@
      PROOF OF CONCEPT — session screen recording
      Wired to the "Log in" / "Logout" button only. On login: prompts
      the browser's native screen-share picker and starts recording.
-     On logout: stops recording and prompts a local file download.
+     On logout: stops recording, saves a local copy, and uploads the
+     recording to OneDrive via Microsoft Graph (signing the user in
+     with MSAL if needed).
 
-     This is a local-only POC — no upload/server. See conversation
-     notes for the cloud storage + multipart-upload path before any
-     real deployment (storage cost, retention policy, consent/legal,
-     and reliability for crashed/closed-tab sessions all still apply).
+     Retention policy, consent/legal, and reliability for crashed or
+     closed-tab sessions all still need real answers before any real
+     deployment — this remains a POC.
      Requires a secure context: https:// or http://localhost — will
      not work over file:// or plain http://.
      ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@5.21.0/lib/msal-browser.min.js"></script>
 <script>
 (function(){
   "use strict";
 
   const btn = document.querySelector('[data-element="auth-btn"]');
   if (!btn) return;
+
+  // Microsoft Entra app registration for OneDrive (Files.ReadWrite) access.
+  const msalConfig = {
+    auth: {
+      clientId: "77e8377f-ec63-4f8d-b071-bd947cfc3cc7",
+      authority: "https://login.microsoftonline.com/a8216c1e-4d63-4352-8c3b-50fa1f1475b1",
+      redirectUri: "https://bn00b.github.io/athens-gas-watch/gasindex.html"
+    },
+    cache: { cacheLocation: "sessionStorage" }
+  };
+  const graphScopes = ["Files.ReadWrite"];
+  const oneDriveFolder = "Athens Gas Watch Recordings";
+
+  let msalReady = null;
+  function getMsal(){
+    if (!msalReady){
+      const instance = new msal.PublicClientApplication(msalConfig);
+      msalReady = instance.initialize().then(() => instance);
+    }
+    return msalReady;
+  }
+
+  // Popup (not redirect) so the in-memory recording blob survives sign-in.
+  async function getGraphToken(){
+    const instance = await getMsal();
+    const accounts = instance.getAllAccounts();
+    if (accounts.length){
+      try {
+        const result = await instance.acquireTokenSilent({ scopes: graphScopes, account: accounts[0] });
+        return result.accessToken;
+      } catch (err){
+        // Falls through to interactive sign-in below.
+      }
+    }
+    const result = await instance.loginPopup({ scopes: graphScopes });
+    return result.accessToken;
+  }
+
+  async function createUploadSession(token, filename){
+    const url = `https://graph.microsoft.com/v1.0/me/drive/root:/${encodeURIComponent(oneDriveFolder)}/${encodeURIComponent(filename)}:/createUploadSession`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ item: { "@microsoft.graph.conflictBehavior": "rename" } })
+    });
+    if (!res.ok) throw new Error(`Couldn't start OneDrive upload session (HTTP ${res.status})`);
+    return res.json();
+  }
+
+  // Graph upload sessions want chunks sized as a multiple of 320 KiB.
+  const UPLOAD_CHUNK_SIZE = 10 * 327680;
+
+  async function uploadToOneDrive(blob, filename){
+    const token = await getGraphToken();
+    const { uploadUrl } = await createUploadSession(token, filename);
+    const size = blob.size;
+    let start = 0;
+    while (start < size){
+      const end = Math.min(start + UPLOAD_CHUNK_SIZE, size);
+      const res = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Length": String(end - start),
+          "Content-Range": `bytes ${start}-${end - 1}/${size}`
+        },
+        body: blob.slice(start, end)
+      });
+      if (!res.ok && res.status !== 200 && res.status !== 201 && res.status !== 202){
+        throw new Error(`OneDrive upload failed partway through (HTTP ${res.status})`);
+      }
+      start = end;
+    }
+  }
 
   let mediaRecorder = null;
   let screenStream = null;
@@ -1046,14 +1121,11 @@
     setBtnState("recording");
   }
 
-  function downloadRecording(){
-    if (!recordedChunks.length) return;
-    const blob = new Blob(recordedChunks, { type: recordedChunks[0].type || "video/webm" });
+  function downloadRecording(blob, filename){
     const url = URL.createObjectURL(blob);
-    const ts = new Date().toISOString().replace(/[:.]/g, "-");
     const a = document.createElement("a");
     a.href = url;
-    a.download = `session-recording-${ts}.webm`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -1064,11 +1136,27 @@
     setBtnState("busy");
     recording = false;
 
-    const finish = () => {
+    const finish = async () => {
       if (screenStream) screenStream.getTracks().forEach(t => t.stop());
       screenStream = null;
-      downloadRecording();
-      recordedChunks = [];
+
+      if (recordedChunks.length){
+        const blob = new Blob(recordedChunks, { type: recordedChunks[0].type || "video/webm" });
+        const ts = new Date().toISOString().replace(/[:.]/g, "-");
+        const filename = `session-recording-${ts}.webm`;
+        recordedChunks = [];
+
+        downloadRecording(blob, filename);
+
+        btn.textContent = "Saving to OneDrive…";
+        try {
+          await uploadToOneDrive(blob, filename);
+        } catch (err){
+          console.error("OneDrive upload failed:", err);
+          alert(`Recording saved locally, but the OneDrive upload failed: ${err.message}`);
+        }
+      }
+
       mediaRecorder = null;
       setBtnState("login");
     };
