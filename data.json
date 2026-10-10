@@ -1,10 +1,10 @@
 {
-  "updated": "2026-10-09",
-  "generatedAt": "2026-10-09T17:15:05Z",
+  "updated": "2026-10-10",
+  "generatedAt": "2026-10-10T16:02:23Z",
   "aaa": {
-    "regular": 3.8319,
-    "mid": 4.3240,
-    "premium": 4.7483,
-    "diesel": 5.7716
+    "regular": 3.8196,
+    "mid": 4.3182,
+    "premium": 4.7418,
+    "diesel": 5.7635
   }
 }
